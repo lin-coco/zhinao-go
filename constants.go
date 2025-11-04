@@ -13,6 +13,15 @@ const (
 
 	// Model360Zhinao3Pro 360智脑3 Pro 模型
 	Model360Zhinao3Pro = "360zhinao3-pro"
+
+	// Model360Flux1KontextDev 文生图 - 360智脑
+	Model360Flux1KontextDev = "360/flux.1-kontext-dev"
+
+	// Model360CVW0V5 360CV W0 V5 图像生成模型
+	Model360CVW0V5 = "360CV_W0_V5"
+
+	// Model360CVC0V5 360CV C0 V5 图像生成模型
+	Model360CVC0V5 = "360CV_C0_V5"
 )
 
 // DeepSeek 模型
@@ -37,6 +46,9 @@ const (
 
 	// ModelQwenVLMax 通义千问视觉 Max 模型
 	ModelQwenVLMax = "alibaba/qwen-vl-max"
+
+	// ModelQwenImageEdit 文生图 - 通义千问
+	ModelQwenImageEdit = "alibaba/qwen-image-edit"
 )
 
 // 百度文心模型
@@ -55,6 +67,9 @@ const (
 
 	// ModelDoubaoPro 豆包 Pro 模型
 	ModelDoubaoPro = "Doubao-pro-32k"
+
+	// ModelDoubaoSeededitV3 豆包图像生成模型
+	ModelDoubaoSeededitV3 = "volcengine/seededit_v3.0"
 )
 
 // MiniMax 模型
@@ -76,6 +91,12 @@ const (
 
 	// ModelGLM4V 智谱 GLM-4V 视觉模型
 	ModelGLM4V = "bigmodel/glm-4v"
+
+	// ModelGLMCogview3 cogview-3 文生图 - 智谱
+	ModelGLMCogview3 = "cogview-3"
+
+	// ModelGLMCogview3Plus cogview-3 文生图 - 智谱
+	ModelGLMCogview3Plus = "cogview-3-plus"
 )
 
 // 月之暗面 Moonshot 模型
@@ -97,6 +118,9 @@ const (
 
 	// ModelO1 OpenAI o1 推理模型
 	ModelO1 = "openai/o1"
+
+	// ModelDallE3 dall-e-3 openai 图片生成模型
+	ModelDallE3 = "dall-e-3"
 )
 
 // Anthropic Claude 模型
@@ -124,6 +148,9 @@ const (
 
 	// ModelHunyuanPro 混元 Pro 模型
 	ModelHunyuanPro = "tencent/hunyuan-pro"
+
+	// ModelHunyuanImage 腾讯混元文生图大模型
+	ModelHunyuanImage = "tencent/hunyuan-image"
 )
 
 // 商汤日日新模型

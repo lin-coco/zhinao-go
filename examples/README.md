@@ -133,6 +133,30 @@ go run main.go
 
 ---
 
+### 7. text2img - 图像生成
+
+展示如何使用文本生成图像功能，支持多种风格和参数配置。
+
+```bash
+cd examples/text2img
+go run main.go
+```
+
+**功能特点**:
+- 文本生成图像
+- 多种风格选择（写实、卡通、剪纸、CG）
+- 支持负向提示词
+- 批量生成
+- 自定义参数（尺寸、步数、种子等）
+
+**适用场景**:
+- AI 绘画应用
+- 内容创作工具
+- 图片素材生成
+- 创意设计辅助
+
+---
+
 ## 运行所有示例
 
 你可以使用以下命令快速运行某个示例：
@@ -152,6 +176,12 @@ go run examples/chat-with-tools/main.go
 
 # 运行 Builder 示例
 go run examples/chat-with-builder/main.go
+
+# 运行模型列表示例
+go run examples/list-models/main.go
+
+# 运行图像生成示例
+go run examples/text2img/main.go
 ```
 
 ## 常见问题

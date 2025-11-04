@@ -19,6 +19,7 @@ type Client struct {
 	// 服务
 	Chat   ChatService
 	Models ModelsService
+	Images ImagesService
 }
 
 // NewClient 创建新的客户端实例
@@ -97,6 +98,7 @@ func NewClient(apiKey string, opts ...Option) (*Client, error) {
 	// 初始化服务
 	client.Chat = newChatService(client)
 	client.Models = newModelsService(client)
+	client.Images = newImagesService(client)
 
 	return client, nil
 }
