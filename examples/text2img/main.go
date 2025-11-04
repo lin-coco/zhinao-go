@@ -40,20 +40,8 @@ func downloadImage(url, filename string) error {
 	return nil
 }
 
-func main() {
-	// 从环境变量创建客户端
-	// 确保设置了 ZHINAO_API_KEY 环境变量
-	client, err := zhinao.NewClientFromEnv()
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
-
-	ctx := context.Background()
-
-	fmt.Println("=== 360智脑图像生成示例 ===")
-	fmt.Println()
-
-	// 示例 1: 基础图像生成
+// runBasicExample 运行基础图像生成示例
+func runBasicExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("1. 基础图像生成 - 蓝天白云")
 	basicRequest := &zhinao.Text2ImgRequest{
 		Model:  zhinao.Model360Flux1KontextDev,
@@ -66,25 +54,27 @@ func main() {
 	resp, err := client.Images.Text2Img(ctx, basicRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
-	} else {
-		fmt.Printf("✅ 状态: %s\n", resp.Status)
-		fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
-		fmt.Printf("📸 生成图片数量: %d\n", len(resp.Output))
-
-		// 下载并保存图片
-		if len(resp.Output) > 0 {
-			filename := "example1_basic.png"
-			if err := downloadImage(resp.Output[0], filename); err != nil {
-				log.Printf("下载图片失败: %v\n", err)
-			} else {
-				absPath, _ := filepath.Abs(filename)
-				fmt.Printf("💾 图片已保存: %s\n", absPath)
-			}
-		}
-		fmt.Println()
+		return
 	}
 
-	// 示例 2: 使用负向提示词
+	fmt.Printf("✅ 状态: %s\n", resp.Status)
+	fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
+	fmt.Printf("📸 生成图片数量: %d\n", len(resp.Output))
+
+	if len(resp.Output) > 0 {
+		filename := "example1_basic.png"
+		if err := downloadImage(resp.Output[0], filename); err != nil {
+			log.Printf("下载图片失败: %v\n", err)
+		} else {
+			absPath, _ := filepath.Abs(filename)
+			fmt.Printf("💾 图片已保存: %s\n", absPath)
+		}
+	}
+	fmt.Println()
+}
+
+// runNegativePromptExample 运行使用负向提示词示例
+func runNegativePromptExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("2. 使用负向提示词 - 美丽风景")
 	negativeRequest := &zhinao.Text2ImgRequest{
 		Model:          zhinao.Model360CVC0V5,
@@ -96,28 +86,31 @@ func main() {
 		GuidanceScale:  8.5,
 	}
 
-	resp, err = client.Images.Text2Img(ctx, negativeRequest)
+	resp, err := client.Images.Text2Img(ctx, negativeRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
-	} else {
-		fmt.Printf("✅ 状态: %s\n", resp.Status)
-		fmt.Printf("📝 Prompt: %s\n", resp.Meta.Prompt)
-		fmt.Printf("🚫 Negative Prompt: %s\n", resp.Meta.NegativePrompt)
-		fmt.Printf("⚡ 提示词强度: %.1f\n", resp.Meta.GuidanceScale)
-
-		if len(resp.Output) > 0 {
-			filename := "example2_negative_prompt.png"
-			if err := downloadImage(resp.Output[0], filename); err != nil {
-				log.Printf("下载图片失败: %v\n", err)
-			} else {
-				absPath, _ := filepath.Abs(filename)
-				fmt.Printf("💾 图片已保存: %s\n", absPath)
-			}
-		}
-		fmt.Println()
+		return
 	}
 
-	// 示例 3: 不同风格的图像
+	fmt.Printf("✅ 状态: %s\n", resp.Status)
+	fmt.Printf("📝 Prompt: %s\n", resp.Meta.Prompt)
+	fmt.Printf("🚫 Negative Prompt: %s\n", resp.Meta.NegativePrompt)
+	fmt.Printf("⚡ 提示词强度: %.1f\n", resp.Meta.GuidanceScale)
+
+	if len(resp.Output) > 0 {
+		filename := "example2_negative_prompt.png"
+		if err := downloadImage(resp.Output[0], filename); err != nil {
+			log.Printf("下载图片失败: %v\n", err)
+		} else {
+			absPath, _ := filepath.Abs(filename)
+			fmt.Printf("💾 图片已保存: %s\n", absPath)
+		}
+	}
+	fmt.Println()
+}
+
+// runStylesExample 运行不同风格的图像生成示例
+func runStylesExample(ctx context.Context, client *zhinao.Client) {
 	styles := []struct {
 		style    zhinao.ImageStyle
 		name     string
@@ -138,7 +131,7 @@ func main() {
 			Height: 512,
 		}
 
-		resp, err = client.Images.Text2Img(ctx, styleRequest)
+		resp, err := client.Images.Text2Img(ctx, styleRequest)
 		if err != nil {
 			log.Printf("  ❌ %s风格生成失败: %v\n", s.name, err)
 			continue
@@ -155,8 +148,10 @@ func main() {
 		}
 	}
 	fmt.Println()
+}
 
-	// 示例 4: 批量生成
+// runBatchExample 运行批量生成示例
+func runBatchExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("4. 批量生成多张图片")
 	batchRequest := &zhinao.Text2ImgRequest{
 		Model:   zhinao.ModelHunyuanImage,
@@ -168,28 +163,31 @@ func main() {
 		Seed:    12345,
 	}
 
-	resp, err = client.Images.Text2Img(ctx, batchRequest)
+	resp, err := client.Images.Text2Img(ctx, batchRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
-	} else {
-		fmt.Printf("✅ 状态: %s\n", resp.Status)
-		fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
-		fmt.Printf("📸 成功生成图片数: %d\n", len(resp.Output))
-		fmt.Printf("🎲 种子值: %d\n", resp.Meta.Seed)
-
-		for i, url := range resp.Output {
-			filename := fmt.Sprintf("example4_batch_%d.png", i+1)
-			if err := downloadImage(url, filename); err != nil {
-				log.Printf("  下载图片 %d 失败: %v\n", i+1, err)
-			} else {
-				absPath, _ := filepath.Abs(filename)
-				fmt.Printf("  💾 图片 %d 已保存: %s\n", i+1, absPath)
-			}
-		}
-		fmt.Println()
+		return
 	}
 
-	// 示例 5: 自定义参数
+	fmt.Printf("✅ 状态: %s\n", resp.Status)
+	fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
+	fmt.Printf("📸 成功生成图片数: %d\n", len(resp.Output))
+	fmt.Printf("🎲 种子值: %d\n", resp.Meta.Seed)
+
+	for i, url := range resp.Output {
+		filename := fmt.Sprintf("example4_batch_%d.png", i+1)
+		if err := downloadImage(url, filename); err != nil {
+			log.Printf("  下载图片 %d 失败: %v\n", i+1, err)
+		} else {
+			absPath, _ := filepath.Abs(filename)
+			fmt.Printf("  💾 图片 %d 已保存: %s\n", i+1, absPath)
+		}
+	}
+	fmt.Println()
+}
+
+// runCustomExample 运行自定义参数示例
+func runCustomExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("5. 自定义详细参数")
 	customRequest := &zhinao.Text2ImgRequest{
 		Model:             zhinao.ModelQwenImageEdit,
@@ -203,27 +201,48 @@ func main() {
 		EnhancePrompt:     true,
 	}
 
-	resp, err = client.Images.Text2Img(ctx, customRequest)
+	resp, err := client.Images.Text2Img(ctx, customRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
-	} else {
-		fmt.Printf("✅ 状态: %s\n", resp.Status)
-		fmt.Printf("📐 图像尺寸: %dx%d\n", resp.Meta.W, resp.Meta.H)
-		fmt.Printf("🔢 采样步数: %d\n", resp.Meta.Steps)
-		fmt.Printf("⚡ 提示词强度: %.1f\n", resp.Meta.GuidanceScale)
-		fmt.Printf("🎲 种子值: %d\n", resp.Meta.Seed)
-		fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
+		return
+	}
 
-		if len(resp.Output) > 0 {
-			filename := "example5_custom.png"
-			if err := downloadImage(resp.Output[0], filename); err != nil {
-				log.Printf("下载图片失败: %v\n", err)
-			} else {
-				absPath, _ := filepath.Abs(filename)
-				fmt.Printf("💾 图片已保存: %s\n", absPath)
-			}
+	fmt.Printf("✅ 状态: %s\n", resp.Status)
+	fmt.Printf("📐 图像尺寸: %dx%d\n", resp.Meta.W, resp.Meta.H)
+	fmt.Printf("🔢 采样步数: %d\n", resp.Meta.Steps)
+	fmt.Printf("⚡ 提示词强度: %.1f\n", resp.Meta.GuidanceScale)
+	fmt.Printf("🎲 种子值: %d\n", resp.Meta.Seed)
+	fmt.Printf("⏱️  生成耗时: %d 秒\n", resp.GenerationTime)
+
+	if len(resp.Output) > 0 {
+		filename := "example5_custom.png"
+		if err := downloadImage(resp.Output[0], filename); err != nil {
+			log.Printf("下载图片失败: %v\n", err)
+		} else {
+			absPath, _ := filepath.Abs(filename)
+			fmt.Printf("💾 图片已保存: %s\n", absPath)
 		}
 	}
+}
+
+func main() {
+
+	client, err := zhinao.NewClientFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	ctx := context.Background()
+
+	fmt.Println("=== 360智脑图像生成示例 ===")
+	fmt.Println()
+
+	// 运行各个示例
+	runBasicExample(ctx, client)
+	runNegativePromptExample(ctx, client)
+	runStylesExample(ctx, client)
+	runBatchExample(ctx, client)
+	runCustomExample(ctx, client)
 
 	fmt.Println("\n=== 示例完成 ===")
 	fmt.Println("✨ 所有生成的图片已保存到当前目录")
