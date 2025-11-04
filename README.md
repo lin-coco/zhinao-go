@@ -4,16 +4,16 @@
 [![GoDoc](https://godoc.org/github.com/lin-coco/zhinao-go?status.svg)](https://godoc.org/github.com/lin-coco/zhinao-go)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-360智脑 Go 语言 SDK，提供简洁、类型安全的 API 接口来访问360智脑的 AI 能力。
+360智脑 Go 语言 SDK，提供简洁、类型安全且功能强大的 API 接口来访问 360 智脑的 AI 能力。
 
-## ✨ 特性
+## ✨ 核心特性
 
-- 🚀 **简单易用** - 直观的 API 和链式 Builder 模式
-- 🔄 **流式支持** - 完整的流式聊天补全
-- ⚡ **高性能** - 连接复用和智能重试
-- 🛡️ **类型安全** - 完整的类型定义
-- 🔧 **灵活配置** - 函数式选项模式
-- 📝 **完善文档** - 详细的文档和示例
+- **简洁易用** - 直观的 API 设计，支持环境变量便捷初始化
+- **Builder 模式** - 流畅的链式调用，轻松构建复杂请求
+- **流式响应** - 实时接收 AI 生成内容
+- **自动重试** - 内置智能重试机制，指数退避策略
+- **类型安全** - 完整的类型定义和编译时检查
+- **生产就绪** - 完善的错误处理和测试覆盖
 
 ## 📦 安装
 
@@ -21,11 +21,21 @@
 go get github.com/lin-coco/zhinao-go
 ```
 
-要求 Go 版本 >= 1.18
+**要求**: Go >= 1.18
 
 ## 🚀 快速开始
 
-### 基础使用
+### 获取 API Key
+
+访问 [360智脑开放平台](https://ai.360.com) 获取 API Key
+
+### 设置环境变量
+
+```bash
+export ZHINAO_API_KEY="your-api-key-here"
+```
+
+### 基础示例
 
 ```go
 package main
@@ -34,6 +44,7 @@ import (
     "context"
     "fmt"
     "log"
+    
     "github.com/lin-coco/zhinao-go"
 )
 
@@ -44,10 +55,10 @@ func main() {
         log.Fatal(err)
     }
 
-    // 使用 Builder 构建请求（推荐）
+    // 使用 Builder 构建请求
     req := zhinao.NewChatBuilder().
         SetModel(zhinao.Model360GPTTurbo).
-        AddUserMessage("你好，请介绍一下360智脑").
+        AddUserMessage("用一句话介绍Go语言的特点").
         Build()
 
     // 发送请求
@@ -60,22 +71,24 @@ func main() {
 }
 ```
 
-### 环境变量配置
-
-```bash
-# 设置 API Key
-export ZHINAO_API_KEY="your-api-key"
-```
-
-### 流式响应
+### 流式响应示例
 
 ```go
+// 构建请求，启用流式
+req := zhinao.NewChatBuilder().
+    SetModel(zhinao.Model360GPTTurbo).
+    AddUserMessage("写一首关于秋天的诗").
+    SetStream(true).
+    Build()
+
+// 创建流式响应
 stream, err := client.Chat.CreateCompletionStream(ctx, req)
 if err != nil {
     log.Fatal(err)
 }
 defer stream.Close()
 
+// 实时接收并打印内容
 for {
     resp, err := stream.Recv()
     if err == io.EOF {
@@ -88,112 +101,84 @@ for {
 }
 ```
 
-### 自定义配置
+## 📚 完整示例
 
-```go
-client, err := zhinao.NewClient(
-    "your-api-key",
-    zhinao.WithTimeout(30*time.Second),
-    zhinao.WithRetry(5, 2*time.Second),
-)
-```
+查看 [examples](./examples) 目录获取完整可运行的示例：
 
-## 📖 核心 API
-
-### 客户端创建
-
-```go
-// 方式1: 从环境变量创建（推荐）
-client, err := zhinao.NewClientFromEnv()
-
-// 方式2: 直接传入 API Key
-client, err := zhinao.NewClient("your-api-key")
-
-// 方式3: 带配置选项
-client, err := zhinao.NewClient(
-    apiKey,
-    zhinao.WithTimeout(30*time.Second),
-    zhinao.WithRetry(5, 2*time.Second),
-)
-```
-
-### Builder 模式（推荐）
-
-```go
-req := zhinao.NewChatBuilder().
-    SetModel(zhinao.Model360GPTTurbo).
-    AddSystemMessage("你是一个助手").
-    AddUserMessage("你好").
-    SetTemperature(0.7).
-    SetMaxTokens(1000).
-    Build()
-```
-
-### 聊天补全
-
-```go
-// 非流式
-resp, err := client.Chat.CreateCompletion(ctx, req)
-
-// 流式
-stream, err := client.Chat.CreateCompletionStream(ctx, req)
-```
-
-### 模型列表
-
-```go
-models, err := client.Models.List(ctx)
-```
-
-## 📚 示例代码
-
-查看 [examples](./examples) 目录获取完整示例：
-
-| 示例 | 说明 | 运行 |
-|-----|------|------|
+| 示例 | 说明 | 运行命令 |
+|-----|------|---------|
 | [chat-completion](./examples/chat-completion/) | 基础聊天补全 | `go run examples/chat-completion/main.go` |
 | [chatbot](./examples/chatbot/) | 交互式聊天机器人 | `go run examples/chatbot/main.go` |
 | [stream-chat](./examples/stream-chat/) | 流式响应 | `go run examples/stream-chat/main.go` |
 | [chat-with-tools](./examples/chat-with-tools/) | 工具调用 | `go run examples/chat-with-tools/main.go` |
 | [chat-with-builder](./examples/chat-with-builder/) | Builder 模式 | `go run examples/chat-with-builder/main.go` |
 | [list-models](./examples/list-models/) | 模型列表 | `go run examples/list-models/main.go` |
-| [text2img](./examples/text2img/) | 图像生成 | `go run examples/text2img/main.go` |
+| [text2img](./examples/text2img/) | 文本生成图像 | `go run examples/text2img/main.go` |
+| [embeddings](./examples/embeddings/) | 向量生成 | `go run examples/embeddings/main.go` |
 
 详细说明请查看 [examples/README.md](./examples/README.md)
+
+## 🔧 配置选项
+
+```go
+client, err := zhinao.NewClient(
+    "your-api-key",
+    zhinao.WithTimeout(30*time.Second),           // 设置超时
+    zhinao.WithRetry(5, 2*time.Second),           // 重试配置
+    zhinao.WithBaseURL("https://api.360.cn/v1"),  // 自定义 API 地址
+    zhinao.WithUserAgent("MyApp/1.0"),            // 自定义 User-Agent
+)
+```
 
 ## 📘 文档
 
 - **[完整指南](./docs/GUIDE.md)** - 详细的使用指南，包含架构设计、高级用法、测试策略等
-- **[SDK 对比](./docs/COMPARISON.md)** - 与其他流行 SDK 的对比分析
-- **[文档导航](./docs/README.md)** - 文档结构说明
+- **[SDK 对比](./docs/COMPARISON.md)** - 与其他流行 Go SDK 的设计对比分析
 
-### 快速链接
+### 快速导航
 
 - [架构设计](./docs/GUIDE.md#架构设计)
-- [错误处理](./docs/GUIDE.md#4-错误处理)
+- [核心功能](./docs/GUIDE.md#核心功能)
 - [测试指南](./docs/GUIDE.md#测试指南)
 - [最佳实践](./docs/GUIDE.md#最佳实践)
-- [扩展开发](./docs/GUIDE.md#扩展开发)
-
-## 🛠️ 配置选项
-
-| 选项 | 说明 | 示例 |
-|-----|------|------|
-| `WithTimeout` | 设置请求超时 | `WithTimeout(30*time.Second)` |
-| `WithRetry` | 设置重试策略 | `WithRetry(5, 2*time.Second)` |
-| `WithBaseURL` | 自定义 API 地址 | `WithBaseURL("https://api.360.cn/v1")` |
-| `WithUserAgent` | 自定义 User-Agent | `WithUserAgent("MyApp/1.0")` |
-| `WithHeaders` | 自定义请求头 | `WithHeaders(map[string]string{...})` |
 
 ## 🤝 贡献
 
-欢迎贡献！请查看 [docs/GUIDE.md - 贡献指南](./docs/GUIDE.md#贡献指南)
+欢迎贡献！请查看 [贡献指南](./docs/GUIDE.md#贡献指南)
 
-提交 PR 前请确保：
-- ✅ 测试通过 (`make test`)
-- ✅ 代码检查通过 (`make lint`)
-- ✅ 添加了测试用例
-- ✅ 更新了文档
+### 开发命令
+
+```bash
+# 运行测试
+make test
+
+# 代码检查
+make lint
+
+# 生成覆盖率报告
+make test-coverage
+
+# 格式化代码
+make fmt
+```
+
+## 🌟 设计理念
+
+360智脑 Go SDK 的设计参考了多个优秀的开源项目：
+
+- **[go-openai](https://github.com/sashabaranov/go-openai)** - 流式响应、错误处理、测试策略
+- **[go-moonshot](https://github.com/northes/go-moonshot)** - Builder 模式、链式调用
+- **[deepseek-go](https://github.com/cohesion-org/deepseek-go)** - 环境变量支持、模块化设计
+
+在这些项目的基础上，我们做了以下改进：
+
+1. **NewClientFromEnv()** - 提供专门的环境变量便捷方法
+2. **智能重试机制** - 内置自动重试，减少用户代码
+3. **优化的 Builder** - 清晰的方法命名（Add vs Set）
+4. **完整的错误层次** - 支持精准的错误处理
+5. **中文文档** - 完整的中文文档和示例
+
+详细对比分析请查看 [docs/COMPARISON.md](./docs/COMPARISON.md)
 
 ## 📄 许可证
 
@@ -202,14 +187,21 @@ MIT License - 查看 [LICENSE](LICENSE) 文件
 ## 🔗 相关链接
 
 - [360智脑官网](https://ai.360.com)
+- [360智脑开放平台](https://ai.360.com/platform)
 - [API 文档](https://ai.360.com/platform/docs/overview)
 - [问题反馈](https://github.com/lin-coco/zhinao-go/issues)
+- [贡献代码](https://github.com/lin-coco/zhinao-go/pulls)
 
-## 🙏 致谢
+## 💬 支持
 
-本项目参考了以下优秀开源项目的设计：
-- [go-openai](https://github.com/sashabaranov/go-openai)
-- [go-moonshot](https://github.com/northes/go-moonshot)
-- [deepseek-go](https://github.com/cohesion-org/deepseek-go)
+如果遇到问题或有建议：
 
-详细对比分析请查看 [docs/COMPARISON.md](./docs/COMPARISON.md)
+1. 查看 [完整指南](./docs/GUIDE.md) 和 [示例代码](./examples/)
+2. 搜索或提交 [Issue](https://github.com/lin-coco/zhinao-go/issues)
+3. 参与 [讨论](https://github.com/lin-coco/zhinao-go/discussions)
+
+---
+
+**快速开始**: `go get github.com/lin-coco/zhinao-go`
+
+Made with ❤️ by the community

@@ -19,11 +19,6 @@ cd examples/chat-completion
 go run main.go
 ```
 
-**适用场景**: 
-- 快速开始使用 SDK
-- 单次问答
-- API 功能测试
-
 ---
 
 ### 2. chatbot - 交互式聊天机器人
@@ -41,11 +36,6 @@ go run main.go
 - 交互式命令行界面
 - 输入 `exit` 退出
 
-**适用场景**:
-- 构建聊天应用
-- 客服机器人
-- 智能助手
-
 ---
 
 ### 3. stream-chat - 流式响应
@@ -62,11 +52,6 @@ go run main.go
 - 降低首字延迟
 - 更好的用户体验
 
-**适用场景**:
-- 长文本生成
-- 需要实时反馈的应用
-- 提升用户体验
-
 ---
 
 ### 4. chat-with-tools - 工具调用 (Function Calling)
@@ -82,11 +67,6 @@ go run main.go
 - 定义工具函数
 - AI 自主决定是否调用工具
 - 基于工具结果生成回答
-
-**适用场景**:
-- 需要访问外部数据（天气、股票、数据库等）
-- 执行特定操作（发送邮件、创建任务等）
-- 增强 AI 能力
 
 ---
 
@@ -105,11 +85,6 @@ go run main.go
 - 代码可读性强
 - 灵活配置参数
 
-**适用场景**:
-- 需要配置多个参数
-- 提高代码可维护性
-- 推荐的最佳实践
-
 ---
 
 ### 6. list-models - 模型列表
@@ -125,11 +100,6 @@ go run main.go
 - 获取所有可用模型
 - 查询特定模型详情
 - 显示模型基本信息
-
-**适用场景**:
-- 了解可用模型
-- 动态选择模型
-- 模型信息查询
 
 ---
 
@@ -149,11 +119,20 @@ go run main.go
 - 批量生成
 - 自定义参数（尺寸、步数、种子等）
 
-**适用场景**:
-- AI 绘画应用
-- 内容创作工具
-- 图片素材生成
-- 创意设计辅助
+---
+
+### 8. embeddings - 向量生成
+
+展示如何生成文本向量。
+
+```bash
+cd examples/embeddings
+go run main.go
+```
+
+**功能特点**:
+- 单个/批量文本向量生成
+- Builder 模式构建请求
 
 ---
 
@@ -182,6 +161,9 @@ go run examples/list-models/main.go
 
 # 运行图像生成示例
 go run examples/text2img/main.go
+
+# 运行向量生成示例
+go run examples/embeddings/main.go
 ```
 
 ## 常见问题
@@ -208,9 +190,8 @@ go run examples/text2img/main.go
 ## 更多资源
 
 - [完整文档](../README.md)
-- [API 参考](../docs/ARCHITECTURE.md)
-- [最佳实践](../docs/COMPARISON.md)
-- [测试指南](../docs/TESTING.md)
+- [完整指南](../docs/GUIDE.md)
+- [SDK 对比](../docs/COMPARISON.md)
 
 ## 贡献
 

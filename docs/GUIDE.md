@@ -9,7 +9,6 @@
 - [核心功能](#核心功能)
 - [测试指南](#测试指南)
 - [最佳实践](#最佳实践)
-- [扩展开发](#扩展开发)
 
 ---
 
@@ -21,7 +20,19 @@
 go get github.com/lin-coco/zhinao-go
 ```
 
-### 基础使用
+**要求**: Go >= 1.18
+
+### 获取 API Key
+
+访问 [360智脑开放平台](https://ai.360.com) 获取 API Key
+
+### 设置环境变量
+
+```bash
+export ZHINAO_API_KEY="your-api-key-here"
+```
+
+### 基础示例
 
 ```go
 package main
@@ -30,12 +41,12 @@ import (
     "context"
     "fmt"
     "log"
-
+    
     "github.com/lin-coco/zhinao-go"
 )
 
 func main() {
-    // 创建客户端（自动从环境变量读取 ZHINAO_API_KEY）
+    // 创建客户端（自动从环境变量 ZHINAO_API_KEY 读取）
     client, err := zhinao.NewClientFromEnv()
     if err != nil {
         log.Fatal(err)
@@ -44,7 +55,7 @@ func main() {
     // 使用 Builder 构建请求
     req := zhinao.NewChatBuilder().
         SetModel(zhinao.Model360GPTTurbo).
-        AddUserMessage("你好，请介绍一下360智脑").
+        AddUserMessage("用一句话介绍Go语言的特点").
         Build()
 
     // 发送请求
@@ -57,6 +68,36 @@ func main() {
 }
 ```
 
+### 流式响应示例
+
+```go
+// 构建请求，启用流式
+req := zhinao.NewChatBuilder().
+    SetModel(zhinao.Model360GPTTurbo).
+    AddUserMessage("写一首关于秋天的诗").
+    SetStream(true).
+    Build()
+
+// 创建流式响应
+stream, err := client.Chat.CreateCompletionStream(ctx, req)
+if err != nil {
+    log.Fatal(err)
+}
+defer stream.Close()
+
+// 实时接收并打印内容
+for {
+    resp, err := stream.Recv()
+    if err == io.EOF {
+        break
+    }
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Print(resp.Choices[0].Delta.Content)
+}
+```
+
 ---
 
 ## 架构设计
@@ -64,55 +105,67 @@ func main() {
 ### 整体架构
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    客户端层 (Client)                      │
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │ ChatService │  │ ModelsService│  │ Future Services│  │
-│  └─────────────┘  └──────────────┘  └───────────────┘  │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                 HTTP 客户端层 (internal/http)            │
-│  ┌──────────────────┐         ┌───────────────────┐    │
-│  │ StandardClient   │ ◄─────► │ Client Interface  │    │
-│  └──────────────────┘         └───────────────────┘    │
-│            │                           △                │
-│            ▼                           │                │
-│  ┌──────────────────┐         ┌───────────────────┐    │
-│  │  Retry Logic     │         │  Custom Clients   │    │
-│  └──────────────────┘         └───────────────────┘    │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                     360智脑 API                          │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                      客户端层 (Client)                         │
+│  ┌──────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐  │
+│  │   Chat   │  │  Models  │  │ Embeddings │  │  Images  │  │
+│  │  Service │  │  Service │  │   Service  │  │  Service │  │
+│  └──────────┘  └──────────┘  └────────────┘  └──────────┘  │
+└──────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    HTTP 抽象层 (internal/http)                 │
+│  ┌──────────────────┐          ┌──────────────────┐          │
+│  │ Client Interface │ ◄──────► │ StandardClient   │          │
+│  └──────────────────┘          └──────────────────┘          │
+│           △                              │                    │
+│           │                              ▼                    │
+│  ┌──────────────────┐          ┌──────────────────┐          │
+│  │  Custom Clients  │          │   Retry Logic    │          │
+│  └──────────────────┘          └──────────────────┘          │
+└──────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        360智脑 API                             │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### 项目结构
 
 ```
 zhinao-go/
-├── client.go              # 客户端入口和配置
-├── config.go              # 配置管理（函数式选项）
-├── chat.go               # 聊天服务实现
-├── chat_builder.go       # 链式构建器
+├── client.go              # 客户端入口和初始化
+├── config.go              # 配置管理（函数式选项模式）
+├── chat.go               # 聊天补全服务
+├── chat_builder.go       # 聊天请求 Builder
 ├── chat_stream.go        # 流式响应处理
-├── models.go             # 模型管理
-├── types.go              # 类型定义
-├── constants.go          # 常量定义
-├── errors.go             # 错误类型
-├── internal/             # 内部实现
-│   ├── http/            # HTTP 客户端抽象
-│   │   ├── client.go    # 接口定义
-│   │   ├── standard.go  # 标准实现
-│   │   └── retry.go     # 重试逻辑
-│   └── test/            # 测试工具
-│       ├── server.go    # Mock 服务器
-│       └── handlers.go  # 请求处理器
-├── examples/            # 使用示例
+├── models.go             # 模型管理服务
+├── embeddings.go         # 向量生成服务
+├── images.go             # 图像生成服务
+├── types.go              # 公共类型定义
+├── constants.go          # 常量定义（模型名、角色等）
+├── errors.go             # 错误类型定义
+├── internal/             # 内部实现（不导出）
+│   ├── http/            # HTTP 客户端抽象层
+│   │   ├── client.go    # HTTP 客户端接口
+│   │   ├── standard.go  # 标准 HTTP 客户端实现
+│   │   └── retry.go     # 重试逻辑实现
+│   ├── test/            # 测试工具
+│   │   ├── server.go    # Mock HTTP 服务器
+│   │   └── handlers.go  # 测试请求处理器
+│   └── utils/           # 内部工具函数
+├── examples/            # 完整使用示例
+│   ├── chat-completion/
+│   ├── stream-chat/
+│   ├── chat-with-tools/
+│   ├── embeddings/
+│   └── text2img/
 └── docs/               # 文档
+    ├── README.md       # 文档导航
+    ├── GUIDE.md        # 完整指南（本文档）
+    └── COMPARISON.md   # SDK 对比分析
 ```
 
 ### 核心设计原则
@@ -311,6 +364,147 @@ if len(resp.Choices[0].Message.ToolCalls) > 0 {
     // ...（详见示例 examples/chat-with-tools）
 }
 ```
+
+### 7. 向量生成（Embeddings）
+
+向量生成用于将文本转换为数值向量，支持语义搜索、文本分类、相似度计算等应用。
+
+#### 基础用法
+
+```go
+req := &zhinao.EmbeddingsRequest{
+    Model: zhinao.ModelEmbeddingS1V1,
+    Input: []string{"你好", "世界"},
+}
+
+resp, err := client.Embeddings.Create(ctx, req)
+if err != nil {
+    log.Fatal(err)
+}
+
+// 访问向量数据
+for i, data := range resp.Data {
+    fmt.Printf("文本 %d 的向量维度: %d\n", i, len(data.Embedding))
+    fmt.Printf("向量前5维: %v\n", data.Embedding[:5])
+}
+```
+
+#### 使用 Builder 模式
+
+```go
+req := zhinao.NewEmbeddings(zhinao.ModelEmbeddingS1V1).
+    AddInput("机器学习").
+    AddInput("深度学习").
+    AddInput("神经网络").
+    SetUser("user-123").
+    Build()
+
+resp, err := client.Embeddings.Create(ctx, req)
+```
+
+**应用场景**：
+- 语义搜索
+- 文本分类
+- 推荐系统
+- 文本聚类
+- 问答系统
+
+### 8. 图像生成（Text-to-Image）
+
+文本生成图像功能支持将文本描述转换为图像，提供多种风格选择。
+
+#### 基础用法
+
+```go
+req := &zhinao.Text2ImgRequest{
+    Model:  zhinao.Model360CVW0V5,
+    Style:  zhinao.StyleRealistic,
+    Prompt: "一只可爱的小猫在草地上玩耍，阳光明媚",
+}
+
+resp, err := client.Images.Text2Img(ctx, req)
+if err != nil {
+    log.Fatal(err)
+}
+
+// 保存图片
+for i, img := range resp.Data {
+    filename := fmt.Sprintf("image_%d.png", i)
+    err := os.WriteFile(filename, img.ImageData, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+```
+
+#### 高级参数配置
+
+```go
+req := &zhinao.Text2ImgRequest{
+    Model:  zhinao.Model360CVW0V5,
+    Style:  zhinao.StyleCartoon,
+    Prompt: "一个科幻城市的夜景",
+    NegativePrompt: "模糊，低质量",
+    Width:  1024,
+    Height: 768,
+    Samples: 2,
+    NumInferenceSteps: 30,
+    GuidanceScale: 10.0,
+    Seed: 42,
+}
+
+resp, err := client.Images.Text2Img(ctx, req)
+```
+
+**支持的风格**：
+- `StyleRealistic` - 写实风格
+- `StyleCartoon` - 卡通风格  
+- `StylePapercut` - 剪纸风格
+- `StyleCG` - CG 风格
+
+**支持的模型**：
+- `Model360CVW0V5` - 360CV W0 V5
+- `Model360CVC0V5` - 360CV C0 V5
+- `Model360Flux1KontextDev` - Flux 1 Kontext Dev
+- 其他第三方模型（详见常量定义）
+
+### 9. 模型管理
+
+SDK 提供模型列表查询和详情获取功能。
+
+#### 获取模型列表
+
+```go
+models, err := client.Models.List(ctx)
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, model := range models.Data {
+    fmt.Printf("模型ID: %s\n", model.ID)
+    fmt.Printf("  名称: %s\n", model.Name)
+    fmt.Printf("  拥有者: %s\n", model.OwnedBy)
+    fmt.Printf("  类型: %s\n", model.Object)
+    fmt.Println()
+}
+```
+
+#### 获取模型详情
+
+```go
+model, err := client.Models.Get(ctx, zhinao.Model360GPTTurbo)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Printf("模型: %s\n", model.ID)
+fmt.Printf("创建时间: %d\n", model.Created)
+```
+
+**常用模型**：
+- 聊天模型：`Model360GPTTurbo`, `Model360GPTPro`, `ModelDeepSeekV3` 等
+- 图像模型：`Model360CVW0V5`, `ModelDallE3` 等
+- 向量模型：`ModelEmbeddingS1V1`
 
 ---
 
@@ -560,71 +754,6 @@ resp2, _ := client.Chat.CreateCompletion(ctx, builder.Build())
 
 ---
 
-## 扩展开发
-
-### 添加新服务
-
-SDK 架构支持便捷地添加新服务（如向量、图像生成）：
-
-```go
-// 1. 定义服务接口
-type EmbeddingsService interface {
-    Create(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error)
-}
-
-// 2. 实现服务
-type embeddingsService struct {
-    httpClient http.Client
-}
-
-func (s *embeddingsService) Create(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error) {
-    // 实现逻辑
-}
-
-// 3. 在 Client 中添加
-type Client struct {
-    Chat       ChatService
-    Models     ModelsService
-    Embeddings EmbeddingsService // 新服务
-}
-
-// 4. 在 NewClient 中初始化
-func NewClient(apiKey string, opts ...Option) (*Client, error) {
-    // ...
-    client.Embeddings = &embeddingsService{httpClient: httpClient}
-    return client, nil
-}
-```
-
-### 自定义 HTTP 客户端
-
-```go
-type MyHTTPClient struct {
-    // 自定义实现
-}
-
-func (c *MyHTTPClient) Post(ctx context.Context, path string, body, result interface{}, apiKey string) error {
-    // 实现 http.Client 接口
-}
-
-client, err := zhinao.NewClient(
-    apiKey,
-    zhinao.WithHTTPClient(&MyHTTPClient{}),
-)
-```
-
-### 中间件支持
-
-```go
-type Middleware func(http.Client) http.Client
-
-func LoggingMiddleware(next http.Client) http.Client {
-    return &loggingClient{next: next}
-}
-```
-
----
-
 ## 参考项目
 
 本 SDK 的设计参考了以下优秀项目：
@@ -654,21 +783,3 @@ func LoggingMiddleware(next http.Client) http.Client {
 - [ ] 添加了测试用例
 - [ ] 更新了相关文档
 - [ ] 提交信息清晰明了
-
----
-
-## 总结
-
-360智脑 Go SDK 提供：
-
-- ✅ 简洁直观的 API
-- ✅ 完善的错误处理
-- ✅ 内置重试机制
-- ✅ 流式响应支持
-- ✅ Builder 模式
-- ✅ 环境变量支持
-- ✅ 完整的测试覆盖
-- ✅ 详细的文档和示例
-- ✅ 良好的扩展性
-
-这使得 SDK 既易于使用，又便于维护和扩展，适合从快速原型到生产环境的各种场景。
