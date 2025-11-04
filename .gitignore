@@ -11,8 +11,13 @@
 # Test binary, built with `go test -c`
 *.test
 
-# Code coverage profiles and other test artifacts
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Environment variables
+.env
+.env.local
+.env.*.local
 coverage.*
 *.coverprofile
 profile.cov
