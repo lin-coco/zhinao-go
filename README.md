@@ -338,9 +338,61 @@ req := &zhinao.ChatRequest{
   - 多轮对话
   - 自定义配置
 
+## 🧪 测试
+
+项目包含完整的单元测试，确保代码质量和稳定性。
+
+### 运行测试
+
+```bash
+# 运行所有测试
+go test -v ./...
+
+# 仅运行单元测试
+go test -v .
+
+# 使用 Makefile
+make test           # 运行所有测试
+make test-unit      # 仅运行单元测试
+make test-coverage  # 生成覆盖率报告
+```
+
+### 测试覆盖
+
+- ✅ 客户端配置测试
+- ✅ 环境变量支持测试
+- ✅ Builder 模式测试
+- ✅ 错误处理测试
+- ✅ 请求验证测试
+- ✅ 类型定义测试
+
+### 发布前检查清单
+
+在发布新版本前，请确保：
+
+```bash
+# 1. 运行所有测试
+make test
+
+# 2. 检查代码风格
+make lint
+
+# 3. 生成覆盖率报告
+make test-coverage
+
+# 4. 构建项目
+make build
+```
+
 ## 🤝 贡献
 
-欢迎贡献代码！请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解详情。
+欢迎贡献代码！在提交 PR 之前，请确保：
+
+1. ✅ 所有测试通过 (`make test`)
+2. ✅ 代码通过 lint 检查 (`make lint`)
+3. ✅ 添加必要的测试用例
+4. ✅ 更新相关文档
+5. ✅ 遵循项目的代码风格
 
 ## 📄 许可证
 
