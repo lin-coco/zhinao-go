@@ -1,6 +1,6 @@
 # 360智脑 Go SDK Makefile
 
-.PHONY: test test-verbose test-coverage build clean lint help
+.PHONY: test test-verbose test-coverage test-unit test-mock build clean lint help
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -8,7 +8,7 @@
 # 运行测试
 test:
 	@echo "Running tests..."
-	@go test ./... -v
+	@go test -v $(shell go list ./... | grep -v /examples)
 
 # 运行测试（详细输出）
 test-verbose:
@@ -18,7 +18,7 @@ test-verbose:
 # 运行测试并生成覆盖率报告
 test-coverage:
 	@echo "Running tests with coverage..."
-	@go test -v -coverprofile=coverage.out ./...
+	@go test -v -coverprofile=coverage.out $(shell go list ./... | grep -v /examples)
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 
@@ -26,6 +26,11 @@ test-coverage:
 test-unit:
 	@echo "Running unit tests..."
 	@go test -v .
+
+# 仅运行 Mock 测试
+test-mock:
+	@echo "Running mock tests..."
+	@go test -v -run Mock .
 
 # 构建项目
 build:
@@ -66,6 +71,7 @@ help:
 	@echo "  test-verbose   - 运行测试（详细输出）"
 	@echo "  test-coverage  - 运行测试并生成覆盖率报告"
 	@echo "  test-unit      - 仅运行单元测试"
+	@echo "  test-mock      - 仅运行 Mock 测试"
 	@echo "  build          - 构建项目"
 	@echo "  clean          - 清理生成的文件"
 	@echo "  lint           - 运行代码检查"
