@@ -12,6 +12,7 @@ var (
 
 	// 请求错误
 	ErrEmptyMessages = errors.New("messages cannot be empty")
+	ErrEmptyInput    = errors.New("input cannot be empty")
 	ErrInvalidModel  = errors.New("invalid model")
 
 	// 流式错误
@@ -60,5 +61,8 @@ type ValidationError struct {
 }
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf("validation error: %s - %s", e.Field, e.Message)
+	if e.Field != "" {
+		return fmt.Sprintf("validation error: %s - %s", e.Field, e.Message)
+	}
+	return fmt.Sprintf("validation error: %s", e.Message)
 }

@@ -22,6 +22,9 @@ const (
 
 	// Model360CVC0V5 360CV C0 V5 图像生成模型
 	Model360CVC0V5 = "360CV_C0_V5"
+
+	// ModelEmbeddingS1V1 文本向量化 - 360智脑
+	ModelEmbeddingS1V1 = "embedding_s1_v1.2"
 )
 
 // DeepSeek 模型
