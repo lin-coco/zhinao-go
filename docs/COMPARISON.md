@@ -4,9 +4,9 @@
 
 ## 📋 对比项目
 
-- **[go-openai](https://github.com/sashabaranov/go-openai)** - OpenAI 官方 Go SDK，功能完整、社区活跃
-- **[go-moonshot](https://github.com/northes/go-moonshot)** - Moonshot AI (Kimi) SDK，支持 Builder 模式
-- **[deepseek-go](https://github.com/cohesion-org/deepseek-go)** - DeepSeek SDK，支持多提供商
+- **[go-openai](https://github.com/sashabaranov/go-openai)** - OpenAI 官方 Go SDK
+- **[go-moonshot](https://github.com/northes/go-moonshot)** - Moonshot AI (Kimi) SDK
+- **[deepseek-go](https://github.com/cohesion-org/deepseek-go)** - DeepSeek SDK
 
 ## 🔧 客户端配置对比
 
