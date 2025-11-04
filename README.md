@@ -156,6 +156,7 @@ models, err := client.Models.List(ctx)
 | [stream-chat](./examples/stream-chat/) | 流式响应 | `go run examples/stream-chat/main.go` |
 | [chat-with-tools](./examples/chat-with-tools/) | 工具调用 | `go run examples/chat-with-tools/main.go` |
 | [chat-with-builder](./examples/chat-with-builder/) | Builder 模式 | `go run examples/chat-with-builder/main.go` |
+| [list-models](./examples/list-models/) | 模型列表 | `go run examples/list-models/main.go` |
 
 详细说明请查看 [examples/README.md](./examples/README.md)
 
