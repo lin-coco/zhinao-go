@@ -328,15 +328,37 @@ req := &zhinao.ChatRequest{
 
 ## 📚 示例
 
-查看 [examples](./examples) 目录获取更多示例：
+查看 [examples](./examples) 目录获取更多示例，所有示例都是独立的可运行程序：
 
-- [基础示例](./examples/basic/)
-  - 简单聊天
-  - Builder 模式使用
-- [高级示例](./examples/advanced/)
-  - 流式聊天
-  - 多轮对话
-  - 自定义配置
+- [chat-completion](./examples/chat-completion/) - 基础聊天补全
+- [chatbot](./examples/chatbot/) - 交互式聊天机器人
+- [stream-chat](./examples/stream-chat/) - 流式响应
+- [chat-with-tools](./examples/chat-with-tools/) - 工具调用（Function Calling）
+- [chat-with-builder](./examples/chat-with-builder/) - Builder 模式使用
+
+### 运行示例
+
+```bash
+# 设置 API Key
+export ZHINAO_API_KEY="your-api-key"
+
+# 运行基础聊天示例
+go run examples/chat-completion/main.go
+
+# 运行聊天机器人
+go run examples/chatbot/main.go
+
+# 运行流式聊天
+go run examples/stream-chat/main.go
+
+# 运行工具调用示例
+go run examples/chat-with-tools/main.go
+
+# 运行 Builder 示例
+go run examples/chat-with-builder/main.go
+```
+
+查看 [examples/README.md](./examples/README.md) 了解每个示例的详细说明。
 
 ## 🧪 测试
 
