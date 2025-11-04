@@ -189,8 +189,6 @@ MIT License - 查看 [LICENSE](LICENSE) 文件
 - [360智脑官网](https://ai.360.com)
 - [360智脑开放平台](https://ai.360.com/platform)
 - [API 文档](https://ai.360.com/platform/docs/overview)
-- [问题反馈](https://github.com/lin-coco/zhinao-go/issues)
-- [贡献代码](https://github.com/lin-coco/zhinao-go/pulls)
 
 ## 💬 支持
 
@@ -198,7 +196,6 @@ MIT License - 查看 [LICENSE](LICENSE) 文件
 
 1. 查看 [完整指南](./docs/GUIDE.md) 和 [示例代码](./examples/)
 2. 搜索或提交 [Issue](https://github.com/lin-coco/zhinao-go/issues)
-3. 参与 [讨论](https://github.com/lin-coco/zhinao-go/discussions)
 
 ---
 
