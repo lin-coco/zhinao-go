@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	fmt.Println("=== 自定义 HTTP 客户端示例 ===\n")
+	fmt.Println("=== 自定义 HTTP 客户端示例 ===")
+	fmt.Println()
 
 	// 示例1: 使用默认配置（推荐方式）
 	// WithBaseURL、WithTimeout 会自动创建合适的 HTTP 客户端
@@ -22,7 +23,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("✓ 客户端创建成功（使用内置配置）\n")
+	fmt.Println("✓ 客户端创建成功（使用内置配置）")
+	fmt.Println()
 
 	// 示例2: 使用自定义的 http.Client
 	// 当你需要完全控制 HTTP 客户端的行为时使用
@@ -49,7 +51,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("✓ 客户端创建成功（使用自定义 http.Client）\n")
+	fmt.Println("✓ 客户端创建成功（使用自定义 http.Client）")
+	fmt.Println()
 
 	// 示例3: 使用自定义实现的 HTTPDoer 接口
 	// 实现 HTTPDoer 接口可以完全自定义请求行为
@@ -70,7 +73,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("✓ 客户端创建成功（使用自定义 HTTPDoer）\n")
+	fmt.Println("✓ 客户端创建成功（使用自定义 HTTPDoer）")
+	fmt.Println()
 
 	fmt.Println("所有客户端创建成功！")
 	fmt.Println("\n提示：")
