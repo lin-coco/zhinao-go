@@ -153,22 +153,6 @@ client, err := zhinao.NewClient(
 
 欢迎贡献！请查看 [贡献指南](./docs/GUIDE.md#贡献指南)
 
-### 开发命令
-
-```bash
-# 运行测试
-make test
-
-# 代码检查
-make lint
-
-# 生成覆盖率报告
-make test-coverage
-
-# 格式化代码
-make fmt
-```
-
 ## 🌟 设计理念
 
 360智脑 Go SDK 的设计参考了多个优秀的开源项目：
