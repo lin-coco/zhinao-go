@@ -28,7 +28,7 @@ func TestText2Img_Mock(t *testing.T) {
 		}
 
 		// 解析请求体
-		var req Text2ImgRequest
+		var req ImageRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
 		}
@@ -43,7 +43,7 @@ func TestText2Img_Mock(t *testing.T) {
 		}
 
 		// 返回成功响应
-		resp := Text2ImgResponse{
+		resp := ImageResponse{
 			Status:         "success",
 			GenerationTime: 7,
 			Output: []string{
@@ -78,7 +78,7 @@ func TestText2Img_Mock(t *testing.T) {
 	}
 
 	// 创建请求
-	req := &Text2ImgRequest{
+	req := &ImageRequest{
 		Model:         "360CV_S0_V5",
 		Style:         ImageStyleRealistic,
 		Prompt:        "画一个蓝天白云的图片",
@@ -90,7 +90,7 @@ func TestText2Img_Mock(t *testing.T) {
 	}
 
 	// 发送请求
-	resp, err := client.Text2Img(context.Background(), req)
+	resp, err := client.CreateImage(context.Background(), req)
 	if err != nil {
 		t.Fatalf("Text2Img failed: %v", err)
 	}
@@ -121,7 +121,7 @@ func TestText2Img_Mock(t *testing.T) {
 func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 	// 创建 Mock Server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var req Text2ImgRequest
+		var req ImageRequest
 		json.NewDecoder(r.Body).Decode(&req)
 
 		// 验证负向提示词
@@ -129,7 +129,7 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 			t.Errorf("Expected negative_prompt '模糊,低质量', got '%s'", req.NegativePrompt)
 		}
 
-		resp := Text2ImgResponse{
+		resp := ImageResponse{
 			Status:         "success",
 			GenerationTime: 8,
 			Output:         []string{"https://example.com/image.png"},
@@ -162,7 +162,7 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 	}
 
 	// 创建请求（带负向提示词）
-	req := &Text2ImgRequest{
+	req := &ImageRequest{
 		Model:          "360CV_S0_V5",
 		Style:          ImageStyleRealistic,
 		Prompt:         "美丽的风景",
@@ -172,7 +172,7 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 	}
 
 	// 发送请求
-	resp, err := client.Text2Img(context.Background(), req)
+	resp, err := client.CreateImage(context.Background(), req)
 	if err != nil {
 		t.Fatalf("Text2Img failed: %v", err)
 	}
@@ -190,13 +190,13 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 func TestText2ImgRequest_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		req     *Text2ImgRequest
+		req     *ImageRequest
 		wantErr bool
 		errMsg  string
 	}{
 		{
 			name: "valid request",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Style:  ImageStyleRealistic,
 				Prompt: "测试图片",
@@ -205,7 +205,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "empty model",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Style:  ImageStyleRealistic,
 				Prompt: "测试图片",
 			},
@@ -214,7 +214,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "empty style",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Prompt: "测试图片",
 			},
@@ -223,7 +223,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "empty prompt",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model: "360CV_S0_V5",
 				Style: ImageStyleRealistic,
 			},
@@ -232,7 +232,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "prompt too long",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Style:  ImageStyleRealistic,
 				Prompt: string(make([]byte, 501)),
@@ -242,7 +242,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid width - too small",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Style:  ImageStyleRealistic,
 				Prompt: "测试",
@@ -253,7 +253,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid width - too large",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Style:  ImageStyleRealistic,
 				Prompt: "测试",
@@ -264,7 +264,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid height",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:  "360CV_S0_V5",
 				Style:  ImageStyleRealistic,
 				Prompt: "测试",
@@ -275,7 +275,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid samples",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:   "360CV_S0_V5",
 				Style:   ImageStyleRealistic,
 				Prompt:  "测试",
@@ -286,7 +286,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid guidance_scale - too low",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:         "360CV_S0_V5",
 				Style:         ImageStyleRealistic,
 				Prompt:        "测试",
@@ -297,7 +297,7 @@ func TestText2ImgRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid guidance_scale - too high",
-			req: &Text2ImgRequest{
+			req: &ImageRequest{
 				Model:         "360CV_S0_V5",
 				Style:         ImageStyleRealistic,
 				Prompt:        "测试",

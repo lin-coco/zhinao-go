@@ -53,13 +53,13 @@ func main() {
     }
 
     // 使用 Builder 构建请求
-    req := zhinao.NewChatBuilder().
+    req := zhinao.NewChatCompletionBuilder().
         SetModel(zhinao.Model360GPTTurbo).
         AddUserMessage("用一句话介绍Go语言的特点").
         Build()
 
     // 发送请求
-    resp, err := client.Chat.CreateCompletion(context.Background(), req)
+    resp, err := client.CreateChatCompletion(context.Background(), req)
     if err != nil {
         log.Fatal(err)
     }
@@ -72,14 +72,14 @@ func main() {
 
 ```go
 // 构建请求，启用流式
-req := zhinao.NewChatBuilder().
+req := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddUserMessage("写一首关于秋天的诗").
     SetStream(true).
     Build()
 
 // 创建流式响应
-stream, err := client.Chat.CreateCompletionStream(ctx, req)
+stream, err := client.CreateChatCompletionStream(ctx, req)
 if err != nil {
     log.Fatal(err)
 }
@@ -226,7 +226,7 @@ client, err := zhinao.NewClientFromEnv(
 Builder 模式简化复杂请求的构建：
 
 ```go
-req := zhinao.NewChatBuilder().
+req := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddSystemMessage("你是一个专业的技术顾问").
     AddUserMessage("什么是机器学习？").
@@ -246,15 +246,15 @@ req := zhinao.NewChatBuilder().
 ### 3. 流式响应
 
 ```go
-req := &zhinao.ChatRequest{
+req := &zhinao.ChatCompletionRequest{
     Model:  zhinao.Model360GPTTurbo,
-    Messages: []zhinao.Message{
+    Messages: []zhinao.ChatCompletionMessage{
         {Role: zhinao.RoleUser, Content: "写一首诗"},
     },
     Stream: true,
 }
 
-stream, err := client.Chat.CreateCompletionStream(ctx, req)
+stream, err := client.CreateChatCompletionStream(ctx, req)
 if err != nil {
     log.Fatal(err)
 }
@@ -294,7 +294,7 @@ error (interface)
 #### 错误处理示例
 
 ```go
-resp, err := client.Chat.CreateCompletion(ctx, req)
+resp, err := client.CreateChatCompletion(ctx, req)
 if err != nil {
     switch e := err.(type) {
     case *zhinao.APIError:
@@ -345,9 +345,9 @@ client, err := zhinao.NewClient(
 ### 6. 工具调用（Function Calling）
 
 ```go
-req := &zhinao.ChatRequest{
+req := &zhinao.ChatCompletionRequest{
     Model: zhinao.Model360GPTTurbo,
-    Messages: []zhinao.Message{
+    Messages: []zhinao.ChatCompletionMessage{
         {Role: zhinao.RoleUser, Content: "北京今天天气怎么样？"},
     },
     Tools: []zhinao.Tool{
@@ -372,7 +372,7 @@ req := &zhinao.ChatRequest{
 }
 
 // 第一次调用：AI 决定是否使用工具
-resp, err := client.Chat.CreateCompletion(ctx, req)
+resp, err := client.CreateChatCompletion(ctx, req)
 
 // 检查工具调用
 if len(resp.Choices[0].Message.ToolCalls) > 0 {
@@ -388,12 +388,12 @@ if len(resp.Choices[0].Message.ToolCalls) > 0 {
 #### 基础用法
 
 ```go
-req := &zhinao.EmbeddingsRequest{
+req := &zhinao.EmbeddingRequest{
     Model: zhinao.ModelEmbeddingS1V1,
     Input: []string{"你好", "世界"},
 }
 
-resp, err := client.Embeddings.Create(ctx, req)
+resp, err := client.CreateEmbeddings(ctx, req)
 if err != nil {
     log.Fatal(err)
 }
@@ -408,14 +408,14 @@ for i, data := range resp.Data {
 #### 使用 Builder 模式
 
 ```go
-req := zhinao.NewEmbeddings(zhinao.ModelEmbeddingS1V1).
+req := zhinao.NewEmbedding(zhinao.ModelEmbeddingS1V1).
     AddInput("机器学习").
     AddInput("深度学习").
     AddInput("神经网络").
     SetUser("user-123").
     Build()
 
-resp, err := client.Embeddings.Create(ctx, req)
+resp, err := client.CreateEmbeddings(ctx, req)
 ```
 
 **应用场景**：
@@ -432,13 +432,13 @@ resp, err := client.Embeddings.Create(ctx, req)
 #### 基础用法
 
 ```go
-req := &zhinao.Text2ImgRequest{
+req := &zhinao.ImageRequest{
     Model:  zhinao.Model360CVW0V5,
     Style:  zhinao.StyleRealistic,
     Prompt: "一只可爱的小猫在草地上玩耍，阳光明媚",
 }
 
-resp, err := client.Images.Text2Img(ctx, req)
+resp, err := client.CreateImage(ctx, req)
 if err != nil {
     log.Fatal(err)
 }
@@ -456,7 +456,7 @@ for i, img := range resp.Data {
 #### 高级参数配置
 
 ```go
-req := &zhinao.Text2ImgRequest{
+req := &zhinao.ImageRequest{
     Model:  zhinao.Model360CVW0V5,
     Style:  zhinao.StyleCartoon,
     Prompt: "一个科幻城市的夜景",
@@ -469,7 +469,7 @@ req := &zhinao.Text2ImgRequest{
     Seed: 42,
 }
 
-resp, err := client.Images.Text2Img(ctx, req)
+resp, err := client.CreateImage(ctx, req)
 ```
 
 **支持的风格**：
@@ -581,7 +581,7 @@ func TestChatCompletion_Mock(t *testing.T) {
             ID: "test-id",
             Choices: []zhinao.Choice{
                 {
-                    Message: zhinao.Message{
+                    Message: zhinao.ChatCompletionMessage{
                         Role:    zhinao.RoleAssistant,
                         Content: "Hello!",
                     },
@@ -598,14 +598,14 @@ func TestChatCompletion_Mock(t *testing.T) {
     )
     
     // 执行测试
-    req := &zhinao.ChatRequest{
+    req := &zhinao.ChatCompletionRequest{
         Model: zhinao.Model360GPTTurbo,
-        Messages: []zhinao.Message{
+        Messages: []zhinao.ChatCompletionMessage{
             {Role: zhinao.RoleUser, Content: "Hi"},
         },
     }
     
-    resp, err := client.Chat.CreateCompletion(context.Background(), req)
+    resp, err := client.CreateChatCompletion(context.Background(), req)
     if err != nil {
         t.Fatalf("Expected no error, got %v", err)
     }
@@ -690,15 +690,15 @@ client, err := zhinao.NewClientFromEnv()
 
 ```go
 // 推荐：使用 Builder
-req := zhinao.NewChatBuilder().
+req := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddUserMessage("你好").
     Build()
 
 // 不推荐：直接构造
-req := &zhinao.ChatRequest{
+req := &zhinao.ChatCompletionRequest{
     Model: "360gpt-turbo",
-    Messages: []zhinao.Message{
+    Messages: []zhinao.ChatCompletionMessage{
         {Role: "user", Content: "你好"},
     },
 }
@@ -707,7 +707,7 @@ req := &zhinao.ChatRequest{
 ### 3. 正确处理流式响应
 
 ```go
-stream, err := client.Chat.CreateCompletionStream(ctx, req)
+stream, err := client.CreateChatCompletionStream(ctx, req)
 if err != nil {
     return err
 }
@@ -732,7 +732,7 @@ for {
 ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 defer cancel()
 
-resp, err := client.Chat.CreateCompletion(ctx, req)
+resp, err := client.CreateChatCompletion(ctx, req)
 ```
 
 ### 5. 错误处理
@@ -740,7 +740,7 @@ resp, err := client.Chat.CreateCompletion(ctx, req)
 SDK 提供了完善的错误类型供精准处理：
 
 ```go
-resp, err := client.Chat.CreateCompletion(ctx, req)
+resp, err := client.CreateChatCompletion(ctx, req)
 if err != nil {
     switch e := err.(type) {
     case *zhinao.APIError:
@@ -767,18 +767,18 @@ if err != nil {
 使用 Builder 模式便于维护多轮对话：
 
 ```go
-builder := zhinao.NewChatBuilder().
+builder := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddSystemMessage("你是一个助手")
 
 // 第一轮
 builder.AddUserMessage("什么是AI？")
-resp1, _ := client.Chat.CreateCompletion(ctx, builder.Build())
+resp1, _ := client.CreateChatCompletion(ctx, builder.Build())
 builder.AddAssistantMessage(resp1.Choices[0].Message.Content)
 
 // 第二轮
 builder.AddUserMessage("它有什么用？")
-resp2, _ := client.Chat.CreateCompletion(ctx, builder.Build())
+resp2, _ := client.CreateChatCompletion(ctx, builder.Build())
 ```
 
 ---

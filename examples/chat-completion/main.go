@@ -13,11 +13,11 @@ func main() {
 		return
 	}
 
-	resp, err := client.CreateCompletion(
+	resp, err := client.CreateChatCompletion(
 		context.Background(),
-		&zhinao.ChatRequest{
+		&zhinao.ChatCompletionRequest{
 			Model: zhinao.Model360GPTTurbo,
-			Messages: []zhinao.Message{
+			Messages: []zhinao.ChatCompletionMessage{
 				{
 					Role:    zhinao.RoleUser,
 					Content: "你好，请介绍一下360智脑",

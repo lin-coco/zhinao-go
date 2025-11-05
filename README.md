@@ -63,13 +63,13 @@ func main() {
     }
 
     // 使用 Builder 构建请求
-    req := zhinao.NewChatBuilder().
+    req := zhinao.NewChatCompletionBuilder().
         SetModel(zhinao.Model360GPTTurbo).
         AddUserMessage("用一句话介绍Go语言的特点").
         Build()
 
     // 发送请求
-    resp, err := client.Chat.CreateCompletion(context.Background(), req)
+    resp, err := client.CreateChatCompletion(context.Background(), req)
     if err != nil {
         log.Fatal(err)
     }
@@ -82,14 +82,14 @@ func main() {
 
 ```go
 // 构建请求，启用流式
-req := zhinao.NewChatBuilder().
+req := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddUserMessage("写一首关于秋天的诗").
     SetStream(true).
     Build()
 
 // 创建流式响应
-stream, err := client.Chat.CreateCompletionStream(ctx, req)
+stream, err := client.CreateChatCompletionStream(ctx, req)
 if err != nil {
     log.Fatal(err)
 }

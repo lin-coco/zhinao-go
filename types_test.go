@@ -7,14 +7,14 @@ import (
 func TestChatRequestValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		req     *ChatRequest
+		req     *ChatCompletionRequest
 		wantErr bool
 	}{
 		{
 			name: "valid request",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 			},
@@ -22,9 +22,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "empty model",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 			},
@@ -32,15 +32,15 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "empty messages",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model:    "360gpt-turbo",
-				Messages: []Message{},
+				Messages: []ChatCompletionMessage{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "nil messages",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model:    "360gpt-turbo",
 				Messages: nil,
 			},
@@ -48,9 +48,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "invalid temperature - too low",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 				Temperature: -0.1,
@@ -59,9 +59,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "invalid temperature - too high",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 				Temperature: 2.1,
@@ -70,9 +70,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "valid temperature",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 				Temperature: 0.7,
@@ -81,9 +81,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "invalid top_p - too low",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 				TopP: -0.1,
@@ -92,9 +92,9 @@ func TestChatRequestValidate(t *testing.T) {
 		},
 		{
 			name: "invalid top_p - too high",
-			req: &ChatRequest{
+			req: &ChatCompletionRequest{
 				Model: "360gpt-turbo",
-				Messages: []Message{
+				Messages: []ChatCompletionMessage{
 					{Role: "user", Content: "Hello"},
 				},
 				TopP: 1.1,
@@ -115,17 +115,17 @@ func TestChatRequestValidate(t *testing.T) {
 
 func TestMessageValidation(t *testing.T) {
 	t.Run("valid message", func(t *testing.T) {
-		msg := Message{
+		msg := ChatCompletionMessage{
 			Role:    "user",
 			Content: "Hello",
 		}
 		if msg.Role == "" || msg.Content == "" {
-			t.Error("Message should be valid")
+			t.Error("ChatCompletionMessage should be valid")
 		}
 	})
 
 	t.Run("message with tool calls", func(t *testing.T) {
-		msg := Message{
+		msg := ChatCompletionMessage{
 			Role: "assistant",
 			ToolCalls: []ToolCall{
 				{

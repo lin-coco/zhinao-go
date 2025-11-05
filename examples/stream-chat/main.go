@@ -14,9 +14,9 @@ func main() {
 		return
 	}
 
-	req := &zhinao.ChatRequest{
+	req := &zhinao.ChatCompletionRequest{
 		Model: zhinao.Model360GPTTurbo,
-		Messages: []zhinao.Message{
+		Messages: []zhinao.ChatCompletionMessage{
 			{
 				Role:    zhinao.RoleUser,
 				Content: "请写一首关于春天的诗",
@@ -25,9 +25,9 @@ func main() {
 		Stream: true,
 	}
 
-	stream, err := client.CreateCompletionStream(context.Background(), req)
+	stream, err := client.CreateChatCompletionStream(context.Background(), req)
 	if err != nil {
-		fmt.Printf("CreateCompletionStream error: %v\n", err)
+		fmt.Printf("CreateChatCompletionStream error: %v\n", err)
 		return
 	}
 	defer stream.Close()

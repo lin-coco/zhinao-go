@@ -13,7 +13,7 @@ import (
 // ChatStream 聊天流接口
 type ChatStream interface {
 	// Recv 接收下一个响应片段
-	Recv() (*ChatStreamResponse, error)
+	Recv() (*ChatCompletionStreamResponse, error)
 	// Close 关闭流
 	Close() error
 }
@@ -77,7 +77,7 @@ type chatStream struct {
 }
 
 // newChatStream 创建新的聊天流
-func newChatStream(ctx context.Context, client *Client, req *ChatRequest) (ChatStream, error) {
+func newChatStream(ctx context.Context, client *Client, req *ChatCompletionRequest) (ChatStream, error) {
 	// 序列化请求体
 	jsonData, err := json.Marshal(req)
 	if err != nil {
@@ -123,7 +123,7 @@ func newChatStream(ctx context.Context, client *Client, req *ChatRequest) (ChatS
 }
 
 // Recv 接收下一个响应片段
-func (s *chatStream) Recv() (*ChatStreamResponse, error) {
+func (s *chatStream) Recv() (*ChatCompletionStreamResponse, error) {
 	if s.isClosed {
 		return nil, ErrStreamClosed
 	}
@@ -146,7 +146,7 @@ func (s *chatStream) Recv() (*ChatStreamResponse, error) {
 	}
 
 	// 解析响应
-	var resp ChatStreamResponse
+	var resp ChatCompletionStreamResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal stream response: %w", err)
 	}

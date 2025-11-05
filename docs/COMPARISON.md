@@ -80,7 +80,7 @@ client := openai.NewClientWithConfig(config)
 ### zhinao-go - Builder 模式
 
 ```go
-req := zhinao.NewChatBuilder().
+req := zhinao.NewChatCompletionBuilder().
     SetModel(zhinao.Model360GPTTurbo).
     AddSystemMessage("你是一个助手").
     AddUserMessage("你好").
@@ -147,7 +147,7 @@ req := openai.ChatCompletionRequest{
 所有 SDK 都采用标准的迭代器模式：
 
 ```go
-stream, err := client.CreateCompletionStream(ctx, req)
+stream, err := client.CreateChatCompletionStream(ctx, req)
 defer stream.Close()
 
 for {

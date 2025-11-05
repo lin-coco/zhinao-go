@@ -7,66 +7,18 @@ import (
 	"fmt"
 )
 
-// EmbeddingsRequest 向量生成请求
-type EmbeddingsRequest struct {
-	// Model 模型类型（必填）
-	Model string `json:"model"`
-
-	// Input 批量生成，每一项是需要生成向量的内容（必填）
-	Input []string `json:"input"`
-
-	// User 标记业务方用户 id，便于业务方区分不同用户（可选）
-	User string `json:"user,omitempty"`
-}
-
-// EmbeddingsResponse 向量生成响应
-type EmbeddingsResponse struct {
-	// Data 返回结果，一个结构体数组，每个元素对应 input 的每一项输入
-	Data []EmbeddingData `json:"data"`
-
-	// Model 本次调用使用的模型名
-	Model string `json:"model"`
-
-	// Object 对象类型
-	Object string `json:"object"`
-
-	// Usage token 消耗量
-	Usage EmbeddingsUsage `json:"usage"`
-}
-
-// EmbeddingData 向量数据
-type EmbeddingData struct {
-	// Embedding 返回的向量结果，是一个浮点数数组
-	Embedding []float64 `json:"embedding"`
-
-	// Object 对象类型
-	Object string `json:"object"`
-
-	// Index 代表本次结果在 data 里的下标值
-	Index int `json:"index"`
-}
-
-// EmbeddingsUsage token 使用量
-type EmbeddingsUsage struct {
-	// PromptTokens 输入 token 消耗量
-	PromptTokens int `json:"prompt_tokens"`
-
-	// TotalTokens 总 token 消耗量
-	TotalTokens int `json:"total_tokens"`
-}
-
 // CreateEmbeddings 生成向量
 //
 // 根据输入的内容，生成向量表示。
 //
 // 示例：
 //
-//	req := &zhinao.EmbeddingsRequest{
+//	req := &zhinao.EmbeddingRequest{
 //	    Model: "embedding_s1_v1",
 //	    Input: []string{"你好", "世界"},
 //	}
 //	resp, err := client.CreateEmbeddings(ctx, req)
-func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error) {
+func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
@@ -91,7 +43,7 @@ func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingsRequest) (
 	defer httpResp.Body.Close()
 
 	// 解析响应
-	resp := &EmbeddingsResponse{}
+	resp := &EmbeddingResponse{}
 	if err := json.NewDecoder(httpResp.Body).Decode(resp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -99,35 +51,22 @@ func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingsRequest) (
 	return resp, nil
 }
 
-// Validate 验证请求参数
-func (req *EmbeddingsRequest) Validate() error {
-	if req.Model == "" {
-		return ErrInvalidModel
-	}
-
-	if len(req.Input) == 0 {
-		return ErrEmptyInput
-	}
-
-	return nil
+// EmbeddingBuilder 向量请求构建器
+type EmbeddingBuilder struct {
+	request *EmbeddingRequest
 }
 
-// EmbeddingsBuilder 向量请求构建器
-type EmbeddingsBuilder struct {
-	request *EmbeddingsRequest
-}
-
-// NewEmbeddings 创建向量请求构建器
+// NewEmbedding 创建向量请求构建器
 //
 // 示例：
 //
-//	req := zhinao.NewEmbeddings("embedding_s1_v1").
+//	req := zhinao.NewEmbedding("embedding_s1_v1").
 //	    AddInput("你好").
 //	    AddInput("世界").
 //	    Build()
-func NewEmbeddings(model string) *EmbeddingsBuilder {
-	return &EmbeddingsBuilder{
-		request: &EmbeddingsRequest{
+func NewEmbedding(model string) *EmbeddingBuilder {
+	return &EmbeddingBuilder{
+		request: &EmbeddingRequest{
 			Model: model,
 			Input: make([]string, 0),
 		},
@@ -135,24 +74,24 @@ func NewEmbeddings(model string) *EmbeddingsBuilder {
 }
 
 // AddInput 添加输入文本
-func (b *EmbeddingsBuilder) AddInput(text string) *EmbeddingsBuilder {
+func (b *EmbeddingBuilder) AddInput(text string) *EmbeddingBuilder {
 	b.request.Input = append(b.request.Input, text)
 	return b
 }
 
 // AddInputs 批量添加输入文本
-func (b *EmbeddingsBuilder) AddInputs(texts []string) *EmbeddingsBuilder {
+func (b *EmbeddingBuilder) AddInputs(texts []string) *EmbeddingBuilder {
 	b.request.Input = append(b.request.Input, texts...)
 	return b
 }
 
 // SetUser 设置用户标识
-func (b *EmbeddingsBuilder) SetUser(user string) *EmbeddingsBuilder {
+func (b *EmbeddingBuilder) SetUser(user string) *EmbeddingBuilder {
 	b.request.User = user
 	return b
 }
 
 // Build 构建请求
-func (b *EmbeddingsBuilder) Build() *EmbeddingsRequest {
+func (b *EmbeddingBuilder) Build() *EmbeddingRequest {
 	return b.request
 }

@@ -14,7 +14,7 @@ func main() {
 	}
 
 	// 使用 Builder 模式构建请求
-	req := zhinao.NewChatBuilder().
+	req := zhinao.NewChatCompletionBuilder().
 		SetModel(zhinao.Model360GPTTurbo).
 		AddSystemMessage("你是一个专业的技术顾问，擅长解释复杂的技术概念").
 		AddUserMessage("请用简单的语言解释什么是机器学习").
@@ -30,7 +30,7 @@ func main() {
 	fmt.Printf("- TopP: %.1f\n", req.TopP)
 	fmt.Printf("- Messages: %d 条\n\n", len(req.Messages))
 
-	resp, err := client.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		fmt.Printf("ChatCompletion error: %v\n", err)
 		return

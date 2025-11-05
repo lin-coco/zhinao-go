@@ -43,7 +43,7 @@ func downloadImage(url, filename string) error {
 // runBasicExample 运行基础图像生成示例
 func runBasicExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("1. 基础图像生成 - 蓝天白云")
-	basicRequest := &zhinao.Text2ImgRequest{
+	basicRequest := &zhinao.ImageRequest{
 		Model:  zhinao.Model360Flux1KontextDev,
 		Style:  zhinao.ImageStyleRealistic,
 		Prompt: "画一个蓝天白云的图片",
@@ -51,7 +51,7 @@ func runBasicExample(ctx context.Context, client *zhinao.Client) {
 		Height: 512,
 	}
 
-	resp, err := client.Text2Img(ctx, basicRequest)
+	resp, err := client.CreateImage(ctx, basicRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -76,7 +76,7 @@ func runBasicExample(ctx context.Context, client *zhinao.Client) {
 // runNegativePromptExample 运行使用负向提示词示例
 func runNegativePromptExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("2. 使用负向提示词 - 美丽风景")
-	negativeRequest := &zhinao.Text2ImgRequest{
+	negativeRequest := &zhinao.ImageRequest{
 		Model:          zhinao.Model360CVC0V5,
 		Style:          zhinao.ImageStyleRealistic,
 		Prompt:         "美丽的山水风景，阳光明媚",
@@ -86,7 +86,7 @@ func runNegativePromptExample(ctx context.Context, client *zhinao.Client) {
 		GuidanceScale:  8.5,
 	}
 
-	resp, err := client.Text2Img(ctx, negativeRequest)
+	resp, err := client.CreateImage(ctx, negativeRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -123,7 +123,7 @@ func runStylesExample(ctx context.Context, client *zhinao.Client) {
 
 	fmt.Println("3. 不同风格的图像生成")
 	for _, s := range styles {
-		styleRequest := &zhinao.Text2ImgRequest{
+		styleRequest := &zhinao.ImageRequest{
 			Model:  zhinao.ModelDoubaoSeededitV3,
 			Style:  s.style,
 			Prompt: "一只可爱的小猫咪",
@@ -131,7 +131,7 @@ func runStylesExample(ctx context.Context, client *zhinao.Client) {
 			Height: 512,
 		}
 
-		resp, err := client.Text2Img(ctx, styleRequest)
+		resp, err := client.CreateImage(ctx, styleRequest)
 		if err != nil {
 			log.Printf("  ❌ %s风格生成失败: %v\n", s.name, err)
 			continue
@@ -153,7 +153,7 @@ func runStylesExample(ctx context.Context, client *zhinao.Client) {
 // runBatchExample 运行批量生成示例
 func runBatchExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("4. 批量生成多张图片")
-	batchRequest := &zhinao.Text2ImgRequest{
+	batchRequest := &zhinao.ImageRequest{
 		Model:   zhinao.ModelHunyuanImage,
 		Style:   zhinao.ImageStyleRealistic,
 		Prompt:  "科技感十足的未来城市",
@@ -163,7 +163,7 @@ func runBatchExample(ctx context.Context, client *zhinao.Client) {
 		Seed:    12345,
 	}
 
-	resp, err := client.Text2Img(ctx, batchRequest)
+	resp, err := client.CreateImage(ctx, batchRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -189,7 +189,7 @@ func runBatchExample(ctx context.Context, client *zhinao.Client) {
 // runCustomExample 运行自定义参数示例
 func runCustomExample(ctx context.Context, client *zhinao.Client) {
 	fmt.Println("5. 自定义详细参数")
-	customRequest := &zhinao.Text2ImgRequest{
+	customRequest := &zhinao.ImageRequest{
 		Model:             zhinao.ModelQwenImageEdit,
 		Style:             zhinao.ImageStyleRealistic,
 		Prompt:            "璀璨星空下的宁静湖泊",
@@ -201,7 +201,7 @@ func runCustomExample(ctx context.Context, client *zhinao.Client) {
 		EnhancePrompt:     true,
 	}
 
-	resp, err := client.Text2Img(ctx, customRequest)
+	resp, err := client.CreateImage(ctx, customRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return

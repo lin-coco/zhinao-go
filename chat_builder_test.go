@@ -6,7 +6,7 @@ import (
 
 func TestChatBuilder(t *testing.T) {
 	t.Run("basic build", func(t *testing.T) {
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddUserMessage("Hello").
 			Build()
@@ -26,7 +26,7 @@ func TestChatBuilder(t *testing.T) {
 	})
 
 	t.Run("multiple messages", func(t *testing.T) {
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddSystemMessage("You are a helper").
 			AddUserMessage("Hello").
@@ -51,7 +51,7 @@ func TestChatBuilder(t *testing.T) {
 		maxTokens := 1000
 		topP := 0.9
 
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddUserMessage("Test").
 			SetTemperature(temperature).
@@ -71,12 +71,12 @@ func TestChatBuilder(t *testing.T) {
 	})
 
 	t.Run("add messages", func(t *testing.T) {
-		messages := []Message{
+		messages := []ChatCompletionMessage{
 			{Role: "system", Content: "System message"},
 			{Role: "user", Content: "User message"},
 		}
 
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddMessages(messages).
 			Build()
@@ -95,7 +95,7 @@ func TestChatBuilder(t *testing.T) {
 			},
 		}
 
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddUserMessage("Test").
 			AddTool(tool).
@@ -125,7 +125,7 @@ func TestChatBuilder(t *testing.T) {
 			},
 		}
 
-		req := NewChatBuilder().
+		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").
 			AddUserMessage("Test").
 			AddTools(tools).
@@ -140,7 +140,7 @@ func TestChatBuilder(t *testing.T) {
 func TestChatBuilderChaining(t *testing.T) {
 	// 测试每次 Build() 返回的是同一个请求对象
 	// Builder 模式修改的是内部请求对象
-	builder := NewChatBuilder()
+	builder := NewChatCompletionBuilder()
 
 	builder.SetModel("model-1").AddUserMessage("Message 1")
 	req1 := builder.Build()
@@ -164,11 +164,11 @@ func TestChatBuilderChaining(t *testing.T) {
 
 func TestChatBuilderIndependence(t *testing.T) {
 	// 测试不同 Builder 实例的独立性
-	builder1 := NewChatBuilder().
+	builder1 := NewChatCompletionBuilder().
 		SetModel("model-1").
 		AddUserMessage("Message 1")
 
-	builder2 := NewChatBuilder().
+	builder2 := NewChatCompletionBuilder().
 		SetModel("model-2").
 		AddUserMessage("Message 2")
 

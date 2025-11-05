@@ -21,8 +21,8 @@ func TestEmbeddings_Mock(t *testing.T) {
 		}
 
 		// 返回 mock 响应
-		resp := EmbeddingsResponse{
-			Data: []EmbeddingData{
+		resp := EmbeddingResponse{
+			Data: []Embedding{
 				{
 					Embedding: []float64{0.1, 0.2, 0.3},
 					Object:    "",
@@ -31,7 +31,7 @@ func TestEmbeddings_Mock(t *testing.T) {
 			},
 			Model:  "embedding_s1_v1",
 			Object: "",
-			Usage: EmbeddingsUsage{
+			Usage: EmbeddingUsage{
 				PromptTokens: 2,
 				TotalTokens:  2,
 			},
@@ -49,7 +49,7 @@ func TestEmbeddings_Mock(t *testing.T) {
 	}
 
 	// 测试向量生成
-	req := &EmbeddingsRequest{
+	req := &EmbeddingRequest{
 		Model: ModelEmbeddingS1V1,
 		Input: []string{"你好"},
 	}
@@ -80,18 +80,18 @@ func TestEmbeddings_Mock(t *testing.T) {
 func TestEmbeddingsBuilder(t *testing.T) {
 	tests := []struct {
 		name     string
-		build    func() *EmbeddingsRequest
+		build    func() *EmbeddingRequest
 		wantErr  bool
-		validate func(*testing.T, *EmbeddingsRequest)
+		validate func(*testing.T, *EmbeddingRequest)
 	}{
 		{
 			name: "basic_build",
-			build: func() *EmbeddingsRequest {
-				return NewEmbeddings(ModelEmbeddingS1V1).
+			build: func() *EmbeddingRequest {
+				return NewEmbedding(ModelEmbeddingS1V1).
 					AddInput("你好").
 					Build()
 			},
-			validate: func(t *testing.T, req *EmbeddingsRequest) {
+			validate: func(t *testing.T, req *EmbeddingRequest) {
 				if req.Model != ModelEmbeddingS1V1 {
 					t.Errorf("Expected model %s, got %s", ModelEmbeddingS1V1, req.Model)
 				}
@@ -105,13 +105,13 @@ func TestEmbeddingsBuilder(t *testing.T) {
 		},
 		{
 			name: "multiple_inputs",
-			build: func() *EmbeddingsRequest {
-				return NewEmbeddings(ModelEmbeddingS1V1).
+			build: func() *EmbeddingRequest {
+				return NewEmbedding(ModelEmbeddingS1V1).
 					AddInput("你好").
 					AddInput("世界").
 					Build()
 			},
-			validate: func(t *testing.T, req *EmbeddingsRequest) {
+			validate: func(t *testing.T, req *EmbeddingRequest) {
 				if len(req.Input) != 2 {
 					t.Errorf("Expected 2 inputs, got %d", len(req.Input))
 				}
@@ -119,12 +119,12 @@ func TestEmbeddingsBuilder(t *testing.T) {
 		},
 		{
 			name: "batch_inputs",
-			build: func() *EmbeddingsRequest {
-				return NewEmbeddings(ModelEmbeddingS1V1).
+			build: func() *EmbeddingRequest {
+				return NewEmbedding(ModelEmbeddingS1V1).
 					AddInputs([]string{"你好", "世界", "测试"}).
 					Build()
 			},
-			validate: func(t *testing.T, req *EmbeddingsRequest) {
+			validate: func(t *testing.T, req *EmbeddingRequest) {
 				if len(req.Input) != 3 {
 					t.Errorf("Expected 3 inputs, got %d", len(req.Input))
 				}
@@ -132,13 +132,13 @@ func TestEmbeddingsBuilder(t *testing.T) {
 		},
 		{
 			name: "with_user",
-			build: func() *EmbeddingsRequest {
-				return NewEmbeddings(ModelEmbeddingS1V1).
+			build: func() *EmbeddingRequest {
+				return NewEmbedding(ModelEmbeddingS1V1).
 					AddInput("你好").
 					SetUser("test-user").
 					Build()
 			},
-			validate: func(t *testing.T, req *EmbeddingsRequest) {
+			validate: func(t *testing.T, req *EmbeddingRequest) {
 				if req.User != "test-user" {
 					t.Errorf("Expected user 'test-user', got '%s'", req.User)
 				}
@@ -165,13 +165,13 @@ func TestEmbeddingsBuilder(t *testing.T) {
 func TestEmbeddingsRequest_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		req     *EmbeddingsRequest
+		req     *EmbeddingRequest
 		wantErr bool
 		errMsg  string
 	}{
 		{
 			name: "valid_request",
-			req: &EmbeddingsRequest{
+			req: &EmbeddingRequest{
 				Model: ModelEmbeddingS1V1,
 				Input: []string{"你好"},
 			},
@@ -179,7 +179,7 @@ func TestEmbeddingsRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "empty_model",
-			req: &EmbeddingsRequest{
+			req: &EmbeddingRequest{
 				Model: "",
 				Input: []string{"你好"},
 			},
@@ -188,7 +188,7 @@ func TestEmbeddingsRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "empty_input",
-			req: &EmbeddingsRequest{
+			req: &EmbeddingRequest{
 				Model: ModelEmbeddingS1V1,
 				Input: []string{},
 			},
@@ -196,7 +196,7 @@ func TestEmbeddingsRequest_Validate(t *testing.T) {
 		},
 		{
 			name: "nil_input",
-			req: &EmbeddingsRequest{
+			req: &EmbeddingRequest{
 				Model: ModelEmbeddingS1V1,
 				Input: nil,
 			},

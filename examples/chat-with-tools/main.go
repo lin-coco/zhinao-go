@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// 初始对话
-	messages := []zhinao.Message{
+	messages := []zhinao.ChatCompletionMessage{
 		{
 			Role:    zhinao.RoleUser,
 			Content: "北京今天天气怎么样？",
@@ -49,9 +49,9 @@ func main() {
 	fmt.Println("提供工具: get_current_weather()")
 
 	// 第一次调用：AI 决定是否使用工具
-	resp, err := client.CreateCompletion(
+	resp, err := client.CreateChatCompletion(
 		context.Background(),
-		&zhinao.ChatRequest{
+		&zhinao.ChatCompletionRequest{
 			Model:    zhinao.Model360GPTTurbo,
 			Messages: messages,
 			Tools:    []zhinao.Tool{weatherTool},
@@ -95,7 +95,7 @@ func main() {
 
 	// 将工具调用和结果添加到对话历史
 	messages = append(messages, msg)
-	messages = append(messages, zhinao.Message{
+	messages = append(messages, zhinao.ChatCompletionMessage{
 		Role:       zhinao.RoleTool,
 		Content:    string(weatherJSON),
 		Name:       toolCall.Function.Name,
@@ -104,9 +104,9 @@ func main() {
 
 	// 第二次调用：让 AI 根据工具结果给出最终答案
 	fmt.Println("\n请求 AI 基于工具结果回答原始问题...")
-	resp, err = client.CreateCompletion(
+	resp, err = client.CreateChatCompletion(
 		context.Background(),
-		&zhinao.ChatRequest{
+		&zhinao.ChatCompletionRequest{
 			Model:    zhinao.Model360GPTTurbo,
 			Messages: messages,
 			Tools:    []zhinao.Tool{weatherTool},

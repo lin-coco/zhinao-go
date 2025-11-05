@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	messages := []zhinao.Message{
+	messages := []zhinao.ChatCompletionMessage{
 		{
 			Role:    zhinao.RoleSystem,
 			Content: "你是一个helpful的AI助手",
@@ -36,15 +36,15 @@ func main() {
 		}
 
 		// 添加用户消息
-		messages = append(messages, zhinao.Message{
+		messages = append(messages, zhinao.ChatCompletionMessage{
 			Role:    zhinao.RoleUser,
 			Content: userInput,
 		})
 
 		// 调用 API
-		resp, err := client.CreateCompletion(
+		resp, err := client.CreateChatCompletion(
 			context.Background(),
-			&zhinao.ChatRequest{
+			&zhinao.ChatCompletionRequest{
 				Model:    zhinao.Model360GPTTurbo,
 				Messages: messages,
 			},
@@ -60,7 +60,7 @@ func main() {
 		fmt.Printf("%s\n\n", assistantMsg)
 
 		// 添加助手消息到历史
-		messages = append(messages, zhinao.Message{
+		messages = append(messages, zhinao.ChatCompletionMessage{
 			Role:    zhinao.RoleAssistant,
 			Content: assistantMsg,
 		})

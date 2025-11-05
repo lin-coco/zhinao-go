@@ -21,7 +21,7 @@ func main() {
 
 	// 示例 1: 基础向量生成
 	fmt.Println("1. 基础向量生成")
-	basicReq := &zhinao.EmbeddingsRequest{
+	basicReq := &zhinao.EmbeddingRequest{
 		Model: zhinao.ModelEmbeddingS1V1,
 		Input: []string{"你好"},
 	}
@@ -45,7 +45,7 @@ func main() {
 
 	// 示例 2: 批量生成向量
 	fmt.Println("2. 批量生成向量")
-	batchReq := &zhinao.EmbeddingsRequest{
+	batchReq := &zhinao.EmbeddingRequest{
 		Model: zhinao.ModelEmbeddingS1V1,
 		Input: []string{
 			"你好，世界",
@@ -69,7 +69,7 @@ func main() {
 
 	// 示例 3: 使用 Builder 构建请求
 	fmt.Println("3. 使用 Builder 构建请求")
-	builderReq := zhinao.NewEmbeddings(zhinao.ModelEmbeddingS1V1).
+	builderReq := zhinao.NewEmbedding(zhinao.ModelEmbeddingS1V1).
 		AddInput("机器学习").
 		AddInput("深度学习").
 		AddInput("神经网络").

@@ -28,14 +28,14 @@ func TestChatCompletion_Mock(t *testing.T) {
 	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
 
 	// 执行聊天补全请求
-	req := &ChatRequest{
+	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
-		Messages: []Message{
+		Messages: []ChatCompletionMessage{
 			{Role: RoleUser, Content: "Hello!"},
 		},
 	}
 
-	resp, err := client.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestChatCompletion_WithBuilder_Mock(t *testing.T) {
 	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
 
 	// 使用 Builder 构建请求
-	req := NewChatBuilder().
+	req := NewChatCompletionBuilder().
 		SetModel(Model360GPTTurbo).
 		AddUserMessage("测试消息").
 		AddSystemMessage("你是一个helpful的助手").
@@ -78,7 +78,7 @@ func TestChatCompletion_WithBuilder_Mock(t *testing.T) {
 		SetMaxTokens(100).
 		Build()
 
-	resp, err := client.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -104,14 +104,14 @@ func TestChatCompletion_InvalidAuth_Mock(t *testing.T) {
 
 	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
 
-	req := &ChatRequest{
+	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
-		Messages: []Message{
+		Messages: []ChatCompletionMessage{
 			{Role: RoleUser, Content: "Hello!"},
 		},
 	}
 
-	_, err := client.CreateCompletion(context.Background(), req)
+	_, err := client.CreateChatCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected error for invalid API key, got nil")
 	}
@@ -135,14 +135,14 @@ func TestChatCompletion_RateLimit_Mock(t *testing.T) {
 	// 注册限流响应
 	server.RegisterHandler("/chat/completions", test.RateLimitResponse(60))
 
-	req := &ChatRequest{
+	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
-		Messages: []Message{
+		Messages: []ChatCompletionMessage{
 			{Role: RoleUser, Content: "Hello!"},
 		},
 	}
 
-	_, err := client.CreateCompletion(context.Background(), req)
+	_, err := client.CreateChatCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected rate limit error, got nil")
 	}
@@ -167,14 +167,14 @@ func TestChatCompletion_ServerError_Mock(t *testing.T) {
 	server.RegisterHandler("/chat/completions",
 		test.ErrorResponse(500, "Internal server error", "server_error", "internal_error"))
 
-	req := &ChatRequest{
+	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
-		Messages: []Message{
+		Messages: []ChatCompletionMessage{
 			{Role: RoleUser, Content: "Hello!"},
 		},
 	}
 
-	_, err := client.CreateCompletion(context.Background(), req)
+	_, err := client.CreateChatCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected server error, got nil")
 	}
@@ -197,7 +197,7 @@ func TestChatCompletion_MultipleMessages_Mock(t *testing.T) {
 	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
 
 	// 构建多轮对话
-	req := NewChatBuilder().
+	req := NewChatCompletionBuilder().
 		SetModel(Model360GPTTurbo).
 		AddSystemMessage("你是一个helpful的助手").
 		AddUserMessage("你好").
@@ -205,7 +205,7 @@ func TestChatCompletion_MultipleMessages_Mock(t *testing.T) {
 		AddUserMessage("今天天气怎么样？").
 		Build()
 
-	resp, err := client.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -246,13 +246,13 @@ func TestChatCompletion_WithTools_Mock(t *testing.T) {
 		},
 	}
 
-	req := NewChatBuilder().
+	req := NewChatCompletionBuilder().
 		SetModel(Model360GPTTurbo).
 		AddUserMessage("北京今天天气怎么样？").
 		AddTool(tool).
 		Build()
 
-	resp, err := client.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
