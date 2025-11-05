@@ -5,15 +5,15 @@
 # 默认目标
 .DEFAULT_GOAL := help
 
-# 运行测试
+# 运行测试（简洁输出）
 test:
 	@echo "Running tests..."
-	@go test -v $(shell go list ./... | grep -v /examples)
+	@go test $(shell go list ./... | grep -v /examples)
 
 # 运行测试（详细输出）
 test-verbose:
 	@echo "Running tests with verbose output..."
-	@go test -v ./...
+	@go test -v $(shell go list ./... | grep -v /examples)
 
 # 运行测试并生成覆盖率报告
 test-coverage:
