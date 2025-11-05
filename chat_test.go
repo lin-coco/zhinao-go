@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lin-coco/zhinao-go/internal/http"
 	"github.com/lin-coco/zhinao-go/internal/test"
 )
 
@@ -36,7 +35,7 @@ func TestChatCompletion_Mock(t *testing.T) {
 		},
 	}
 
-	resp, err := client.Chat.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -79,7 +78,7 @@ func TestChatCompletion_WithBuilder_Mock(t *testing.T) {
 		SetMaxTokens(100).
 		Build()
 
-	resp, err := client.Chat.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -112,15 +111,15 @@ func TestChatCompletion_InvalidAuth_Mock(t *testing.T) {
 		},
 	}
 
-	_, err := client.Chat.CreateCompletion(context.Background(), req)
+	_, err := client.CreateCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected error for invalid API key, got nil")
 	}
 
 	// 验证返回的是 API 错误
-	apiErr, ok := err.(*http.APIError)
+	apiErr, ok := err.(*APIError)
 	if !ok {
-		t.Fatalf("Expected http.APIError, got %T", err)
+		t.Fatalf("Expected *APIError, got %T", err)
 	}
 
 	if apiErr.StatusCode != 401 {
@@ -143,19 +142,19 @@ func TestChatCompletion_RateLimit_Mock(t *testing.T) {
 		},
 	}
 
-	_, err := client.Chat.CreateCompletion(context.Background(), req)
+	_, err := client.CreateCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected rate limit error, got nil")
 	}
 
-	// 验证是限流错误
-	rateLimitErr, ok := err.(*http.RateLimitError)
+	// 验证是 API 错误
+	apiErr, ok := err.(*APIError)
 	if !ok {
-		t.Fatalf("Expected http.RateLimitError, got %T", err)
+		t.Fatalf("Expected *APIError, got %T", err)
 	}
 
-	if rateLimitErr.StatusCode != 429 {
-		t.Errorf("Expected status code 429, got %d", rateLimitErr.StatusCode)
+	if apiErr.StatusCode != 429 {
+		t.Errorf("Expected status code 429, got %d", apiErr.StatusCode)
 	}
 }
 
@@ -175,14 +174,14 @@ func TestChatCompletion_ServerError_Mock(t *testing.T) {
 		},
 	}
 
-	_, err := client.Chat.CreateCompletion(context.Background(), req)
+	_, err := client.CreateCompletion(context.Background(), req)
 	if err == nil {
 		t.Fatal("Expected server error, got nil")
 	}
 
-	apiErr, ok := err.(*http.APIError)
+	apiErr, ok := err.(*APIError)
 	if !ok {
-		t.Fatalf("Expected http.APIError, got %T", err)
+		t.Fatalf("Expected *APIError, got %T", err)
 	}
 
 	if apiErr.StatusCode != 500 {
@@ -206,7 +205,7 @@ func TestChatCompletion_MultipleMessages_Mock(t *testing.T) {
 		AddUserMessage("今天天气怎么样？").
 		Build()
 
-	resp, err := client.Chat.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}
@@ -253,7 +252,7 @@ func TestChatCompletion_WithTools_Mock(t *testing.T) {
 		AddTool(tool).
 		Build()
 
-	resp, err := client.Chat.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateCompletion(context.Background(), req)
 	if err != nil {
 		t.Fatalf("CreateCompletion failed: %v", err)
 	}

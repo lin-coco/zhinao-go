@@ -25,7 +25,7 @@ func main() {
 		Stream: true,
 	}
 
-	stream, err := client.Chat.CreateCompletionStream(context.Background(), req)
+	stream, err := client.CreateCompletionStream(context.Background(), req)
 	if err != nil {
 		fmt.Printf("CreateCompletionStream error: %v\n", err)
 		return

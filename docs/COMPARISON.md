@@ -26,7 +26,7 @@ client, err := zhinao.NewClient("your-api-key")
 client, err := zhinao.NewClient(
     apiKey,
     zhinao.WithTimeout(30*time.Second),
-    zhinao.WithRetry(5, 2*time.Second),
+    zhinao.WithBaseURL("https://api.360.cn/v1"),
 )
 ```
 
@@ -176,8 +176,6 @@ type APIError struct {
     Message    string
 }
 
-func (e *APIError) IsRetryable() bool
-
 type RateLimitError struct {
     *APIError
     RetryAfter int
@@ -200,9 +198,7 @@ var (
 ```go
 switch e := err.(type) {
 case *zhinao.APIError:
-    if e.IsRetryable() {
-        // 重试
-    }
+    log.Printf("API错误: %s", e.Error())
 case *zhinao.RateLimitError:
     time.Sleep(time.Duration(e.RetryAfter) * time.Second)
 case *zhinao.ValidationError:
@@ -212,8 +208,8 @@ case *zhinao.ValidationError:
 
 **特点**：
 - 错误类型层次结构
-- 提供 `IsRetryable()` 辅助方法
 - 预定义常见错误
+- 提供详细的错误信息
 
 ### go-moonshot
 
@@ -262,27 +258,6 @@ type RateLimitError struct {
 - 包含限流错误类型
 - 错误信息较完整
 
-## 🔄 重试机制对比
-
-### zhinao-go
-
-```go
-client, err := zhinao.NewClient(
-    apiKey,
-    zhinao.WithRetry(5, 2*time.Second),
-)
-```
-
-**特点**：
-- 内置自动重试
-- 指数退避策略
-- 自动识别可重试错误（5xx、429、408）
-
-### 其他 SDK
-
-- 无内置重试机制
-- 需要用户自行实现
-
 ## 📊 功能对比
 
 | 功能 | zhinao-go | go-moonshot | deepseek-go | go-openai |
@@ -295,7 +270,7 @@ client, err := zhinao.NewClient(
 | 图像生成 | ✅ | ❌ | ✅ | ✅ |
 | 环境变量便捷方法 | ✅ | ❌ | ❌ | ❌ |
 | Builder 模式 | ✅ | ✅ | ❌ | ❌ |
-| 自动重试 | ✅ | ❌ | ❌ | ❌ |
+| HTTPDoer 接口 | ✅ | ❌ | ❌ | ✅ |
 | 中文文档 | ✅ | ✅ | ❌ | ❌ |
 
 ## 🎨 设计借鉴
@@ -316,14 +291,14 @@ client, err := zhinao.NewClient(
 
 - 环境变量的处理方式（使用 `os.LookupEnv`）
 - 模块化的代码组织
-- 外部提供商的灵活支持
+- HTTP 客户端抽象，轻松集成第三方 HTTP 库
 
 ## 🆕 zhinao-go 的特点
 
 基于以上学习，zhinao-go 做了以下设计：
 
 1. **NewClientFromEnv()** - 提供专门的环境变量便捷方法
-2. **智能重试** - 内置重试机制，减少用户代码
+2. **HTTPDoer 接口** - 灵活的 HTTP 客户端抽象，可轻松集成第三方 HTTP 库（如 go-resty、go-retryablehttp）
 3. **优化的 Builder** - 清晰的方法命名（Add vs Set）
 4. **完整的错误层次** - 支持精准的错误处理
 5. **中文文档** - 完整的中文文档和示例

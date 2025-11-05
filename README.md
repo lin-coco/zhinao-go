@@ -10,7 +10,6 @@
 
 - **简洁易用** - 直观的 API 设计，支持环境变量便捷初始化
 - **Builder 模式** - 流畅的链式调用，轻松构建复杂请求
-- **自动重试** - 内置智能重试机制，自动处理临时性错误
 - **灵活扩展** - 支持自定义 HTTP 客户端，可集成第三方 HTTP 库
 
 ## 🎯 支持功能
@@ -123,18 +122,40 @@ for {
 | [list-models](./examples/list-models/) | 模型列表 | `go run examples/list-models/main.go` |
 | [text2img](./examples/text2img/) | 文本生成图像 | `go run examples/text2img/main.go` |
 | [embeddings](./examples/embeddings/) | 向量生成 | `go run examples/embeddings/main.go` |
+| [custom-http-client](./examples/custom-http-client/) | 自定义 HTTP 客户端 | `go run examples/custom-http-client/main.go` |
 
 详细说明请查看 [examples/README.md](./examples/README.md)
 
 ## 🔧 配置选项
 
+### 方式1：使用函数式选项（推荐）
+
 ```go
 client, err := zhinao.NewClient(
     "your-api-key",
     zhinao.WithTimeout(30*time.Second),           // 设置超时
-    zhinao.WithRetry(5, 2*time.Second),           // 重试配置
     zhinao.WithBaseURL("https://api.360.cn/v1"),  // 自定义 API 地址
-    zhinao.WithUserAgent("MyApp/1.0"),            // 自定义 User-Agent
+    zhinao.WithHeaders(map[string]string{         // 自定义请求头
+        "User-Agent": "MyApp/1.0",
+    }),
+)
+```
+
+### 方式2：使用自定义 HTTP 客户端
+
+```go
+// 使用标准库的 http.Client
+httpClient := &http.Client{
+    Timeout: 30 * time.Second,
+    Transport: &http.Transport{
+        MaxIdleConns:        100,
+        MaxIdleConnsPerHost: 10,
+    },
+}
+
+client, err := zhinao.NewClient(
+    "your-api-key",
+    zhinao.WithHTTPClient(httpClient),  // 使用自定义 HTTP 客户端
 )
 ```
 
@@ -160,15 +181,7 @@ client, err := zhinao.NewClient(
 
 - **[go-openai](https://github.com/sashabaranov/go-openai)** - 流式响应、错误处理、测试策略
 - **[go-moonshot](https://github.com/northes/go-moonshot)** - Builder 模式、链式调用
-- **[deepseek-go](https://github.com/cohesion-org/deepseek-go)** - 环境变量支持、模块化设计
-
-在这些项目的基础上，我们做了以下改进：
-
-1. **NewClientFromEnv()** - 提供专门的环境变量便捷方法
-2. **智能重试机制** - 内置自动重试，减少用户代码
-3. **优化的 Builder** - 清晰的方法命名（Add vs Set）
-4. **完整的错误层次** - 支持精准的错误处理
-5. **中文文档** - 完整的中文文档和示例
+- **[deepseek-go](https://github.com/cohesion-org/deepseek-go)** - 环境变量支持、模块化设计、HTTP 客户端抽象
 
 详细对比分析请查看 [docs/COMPARISON.md](./docs/COMPARISON.md)
 

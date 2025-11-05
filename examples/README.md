@@ -136,6 +136,22 @@ go run main.go
 
 ---
 
+### 9. custom-http-client - 自定义 HTTP 客户端
+
+展示如何使用自定义的 HTTP 客户端，包括标准库 `http.Client` 和自定义 `HTTPDoer` 实现。
+
+```bash
+cd examples/custom-http-client
+go run main.go
+```
+
+**功能特点**:
+- 使用标准库 `http.Client` 配置连接池、超时等
+- 实现自定义 `HTTPDoer` 接口添加日志、监控等功能
+- 灵活的 HTTP 客户端配置
+
+---
+
 ## 运行所有示例
 
 你可以使用以下命令快速运行某个示例：
@@ -164,6 +180,10 @@ go run examples/text2img/main.go
 
 # 运行向量生成示例
 go run examples/embeddings/main.go
+
+# 运行自定义 HTTP 客户端示例
+go run examples/custom-http-client/main.go
+
 ```
 
 ## 常见问题

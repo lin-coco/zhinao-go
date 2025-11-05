@@ -1,36 +1,11 @@
 package zhinao
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 )
-
-// ChatService 聊天服务接口
-type ChatService interface {
-	// CreateCompletion 创建聊天补全（非流式）
-	CreateCompletion(ctx context.Context, req *ChatRequest) (*ChatResponse, error)
-
-	// CreateCompletionStream 创建流式聊天补全
-	CreateCompletionStream(ctx context.Context, req *ChatRequest) (ChatStream, error)
-}
-
-// ChatStream 聊天流接口
-type ChatStream interface {
-	// Recv 接收下一个响应片段
-	Recv() (*ChatStreamResponse, error)
-
-	// Close 关闭流
-	Close() error
-}
-
-// chatService 聊天服务实现
-type chatService struct {
-	client *Client
-}
-
-// newChatService 创建聊天服务实例
-func newChatService(client *Client) ChatService {
-	return &chatService{client: client}
-}
 
 // CreateCompletion 创建聊天补全（非流式）
 //
@@ -50,8 +25,8 @@ func newChatService(client *Client) ChatService {
 //	        {Role: "user", Content: "你好"},
 //	    },
 //	}
-//	resp, err := client.Chat.CreateCompletion(ctx, req)
-func (s *chatService) CreateCompletion(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
+//	resp, err := client.CreateCompletion(ctx, req)
+func (c *Client) CreateCompletion(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
 	// 验证请求
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -60,18 +35,29 @@ func (s *chatService) CreateCompletion(ctx context.Context, req *ChatRequest) (*
 	// 确保不是流式请求
 	req.Stream = false
 
-	// 发送请求
-	var resp ChatResponse
-	err := s.client.httpClient.Post(
-		ctx,
-		"/chat/completions",
-		req,
-		&resp,
-		s.client.config.APIKey,
-	)
+	// 序列化请求体
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
 
+	// 构建请求
+	httpReq, err := c.buildRequest(ctx, "POST", "/chat/completions", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
+	}
+
+	// 发送请求
+	httpResp, err := c.doRequest(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+
+	// 解析响应
+	var resp ChatResponse
+	if err := json.NewDecoder(httpResp.Body).Decode(&resp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &resp, nil
@@ -95,7 +81,7 @@ func (s *chatService) CreateCompletion(ctx context.Context, req *ChatRequest) (*
 //	        {Role: "user", Content: "写一首诗"},
 //	    },
 //	}
-//	stream, err := client.Chat.CreateCompletionStream(ctx, req)
+//	stream, err := client.CreateCompletionStream(ctx, req)
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
@@ -111,7 +97,7 @@ func (s *chatService) CreateCompletion(ctx context.Context, req *ChatRequest) (*
 //	    }
 //	    // 处理响应
 //	}
-func (s *chatService) CreateCompletionStream(ctx context.Context, req *ChatRequest) (ChatStream, error) {
+func (c *Client) CreateCompletionStream(ctx context.Context, req *ChatRequest) (ChatStream, error) {
 	// 验证请求
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -121,7 +107,7 @@ func (s *chatService) CreateCompletionStream(ctx context.Context, req *ChatReque
 	req.Stream = true
 
 	// 创建流
-	stream, err := newChatStream(ctx, s.client, req)
+	stream, err := newChatStream(ctx, c, req)
 	if err != nil {
 		return nil, err
 	}

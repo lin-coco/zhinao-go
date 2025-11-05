@@ -37,7 +37,7 @@ func TestModelsList_Mock(t *testing.T) {
 		json.NewEncoder(w).Encode(resp)
 	})
 
-	resp, err := client.Models.List(context.Background())
+	resp, err := client.ListModels(context.Background())
 	if err != nil {
 		t.Fatalf("Models.List error: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestModelsGet_Mock(t *testing.T) {
 		json.NewEncoder(w).Encode(resp)
 	})
 
-	info, err := client.Models.Get(context.Background(), Model360GPTTurbo)
+	info, err := client.GetModel(context.Background(), Model360GPTTurbo)
 	if err != nil {
 		t.Fatalf("Models.Get error: %v", err)
 	}
@@ -97,7 +97,7 @@ func TestModelsGet_EmptyID_Mock(t *testing.T) {
 	client, _, teardown := setupZhinaoTestServer()
 	defer teardown()
 
-	_, err := client.Models.Get(context.Background(), "")
+	_, err := client.GetModel(context.Background(), "")
 	if err == nil {
 		t.Error("Expected error for empty model ID, got nil")
 	}
@@ -125,7 +125,7 @@ func TestModelsGet_NotFound_Mock(t *testing.T) {
 		json.NewEncoder(w).Encode(errResp)
 	})
 
-	_, err := client.Models.Get(context.Background(), "non-existent-model")
+	_, err := client.GetModel(context.Background(), "non-existent-model")
 	if err == nil {
 		t.Error("Expected error for non-existent model, got nil")
 	}

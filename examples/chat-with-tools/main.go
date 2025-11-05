@@ -49,7 +49,7 @@ func main() {
 	fmt.Println("提供工具: get_current_weather()")
 
 	// 第一次调用：AI 决定是否使用工具
-	resp, err := client.Chat.CreateCompletion(
+	resp, err := client.CreateCompletion(
 		context.Background(),
 		&zhinao.ChatRequest{
 			Model:    zhinao.Model360GPTTurbo,
@@ -104,7 +104,7 @@ func main() {
 
 	// 第二次调用：让 AI 根据工具结果给出最终答案
 	fmt.Println("\n请求 AI 基于工具结果回答原始问题...")
-	resp, err = client.Chat.CreateCompletion(
+	resp, err = client.CreateCompletion(
 		context.Background(),
 		&zhinao.ChatRequest{
 			Model:    zhinao.Model360GPTTurbo,

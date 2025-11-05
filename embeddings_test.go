@@ -54,7 +54,7 @@ func TestEmbeddings_Mock(t *testing.T) {
 		Input: []string{"你好"},
 	}
 
-	resp, err := client.Embeddings.Create(context.Background(), req)
+	resp, err := client.CreateEmbeddings(context.Background(), req)
 	if err != nil {
 		t.Fatalf("Embeddings.Create failed: %v", err)
 	}

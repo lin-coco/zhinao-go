@@ -26,7 +26,7 @@ func main() {
 		Input: []string{"你好"},
 	}
 
-	resp, err := client.Embeddings.Create(ctx, basicReq)
+	resp, err := client.CreateEmbeddings(ctx, basicReq)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 	} else {
@@ -54,7 +54,7 @@ func main() {
 		},
 	}
 
-	resp, err = client.Embeddings.Create(ctx, batchReq)
+	resp, err = client.CreateEmbeddings(ctx, batchReq)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 	} else {
@@ -76,7 +76,7 @@ func main() {
 		SetUser("example-user").
 		Build()
 
-	resp, err = client.Embeddings.Create(ctx, builderReq)
+	resp, err = client.CreateEmbeddings(ctx, builderReq)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 	} else {

@@ -1,26 +1,11 @@
 package zhinao
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 )
-
-// EmbeddingsService 向量服务接口
-type EmbeddingsService interface {
-	// Create 生成向量
-	Create(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error)
-}
-
-// embeddingsService 向量服务实现
-type embeddingsService struct {
-	client *Client
-}
-
-// newEmbeddingsService 创建向量服务实例
-func newEmbeddingsService(client *Client) EmbeddingsService {
-	return &embeddingsService{
-		client: client,
-	}
-}
 
 // EmbeddingsRequest 向量生成请求
 type EmbeddingsRequest struct {
@@ -70,7 +55,7 @@ type EmbeddingsUsage struct {
 	TotalTokens int `json:"total_tokens"`
 }
 
-// Create 生成向量
+// CreateEmbeddings 生成向量
 //
 // 根据输入的内容，生成向量表示。
 //
@@ -80,22 +65,35 @@ type EmbeddingsUsage struct {
 //	    Model: "embedding_s1_v1",
 //	    Input: []string{"你好", "世界"},
 //	}
-//	resp, err := client.Embeddings.Create(ctx, req)
-func (s *embeddingsService) Create(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error) {
+//	resp, err := client.CreateEmbeddings(ctx, req)
+func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingsRequest) (*EmbeddingsResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
 
-	resp := &EmbeddingsResponse{}
-	err := s.client.httpClient.Post(
-		ctx,
-		"/embeddings",
-		req,
-		resp,
-		s.client.config.APIKey,
-	)
+	// 序列化请求体
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	// 构建请求
+	httpReq, err := c.buildRequest(ctx, "POST", "/embeddings", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
+	}
+
+	// 发送请求
+	httpResp, err := c.doRequest(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+
+	// 解析响应
+	resp := &EmbeddingsResponse{}
+	if err := json.NewDecoder(httpResp.Body).Decode(resp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return resp, nil

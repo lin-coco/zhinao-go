@@ -13,7 +13,7 @@ func main() {
 		return
 	}
 
-	resp, err := client.Chat.CreateCompletion(
+	resp, err := client.CreateCompletion(
 		context.Background(),
 		&zhinao.ChatRequest{
 			Model: zhinao.Model360GPTTurbo,

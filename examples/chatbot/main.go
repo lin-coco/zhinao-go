@@ -42,7 +42,7 @@ func main() {
 		})
 
 		// 调用 API
-		resp, err := client.Chat.CreateCompletion(
+		resp, err := client.CreateCompletion(
 			context.Background(),
 			&zhinao.ChatRequest{
 				Model:    zhinao.Model360GPTTurbo,

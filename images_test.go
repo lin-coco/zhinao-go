@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	internalhttp "github.com/lin-coco/zhinao-go/internal/http"
 )
 
 func TestText2Img_Mock(t *testing.T) {
@@ -69,15 +67,15 @@ func TestText2Img_Mock(t *testing.T) {
 	defer server.Close()
 
 	// 创建客户端
-	httpClient := internalhttp.NewStandardClient(server.URL, DefaultTimeout, 0, 0)
 	client := &Client{
 		config: &Config{
 			APIKey:  "test-api-key",
 			BaseURL: server.URL,
 		},
-		httpClient: httpClient,
+		httpDoer: &http.Client{
+			Timeout: DefaultTimeout,
+		},
 	}
-	client.Images = newImagesService(client)
 
 	// 创建请求
 	req := &Text2ImgRequest{
@@ -92,7 +90,7 @@ func TestText2Img_Mock(t *testing.T) {
 	}
 
 	// 发送请求
-	resp, err := client.Images.Text2Img(context.Background(), req)
+	resp, err := client.Text2Img(context.Background(), req)
 	if err != nil {
 		t.Fatalf("Text2Img failed: %v", err)
 	}
@@ -153,15 +151,15 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 	defer server.Close()
 
 	// 创建客户端
-	httpClient := internalhttp.NewStandardClient(server.URL, DefaultTimeout, 0, 0)
 	client := &Client{
 		config: &Config{
 			APIKey:  "test-api-key",
 			BaseURL: server.URL,
 		},
-		httpClient: httpClient,
+		httpDoer: &http.Client{
+			Timeout: DefaultTimeout,
+		},
 	}
-	client.Images = newImagesService(client)
 
 	// 创建请求（带负向提示词）
 	req := &Text2ImgRequest{
@@ -174,7 +172,7 @@ func TestText2Img_WithNegativePrompt_Mock(t *testing.T) {
 	}
 
 	// 发送请求
-	resp, err := client.Images.Text2Img(context.Background(), req)
+	resp, err := client.Text2Img(context.Background(), req)
 	if err != nil {
 		t.Fatalf("Text2Img failed: %v", err)
 	}

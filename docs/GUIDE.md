@@ -115,15 +115,19 @@ for {
                               │
                               ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                    HTTP 抽象层 (internal/http)                 │
+│                      HTTP 客户端层                             │
 │  ┌──────────────────┐          ┌──────────────────┐          │
-│  │ Client Interface │ ◄──────► │ StandardClient   │          │
+│  │  HTTPDoer 接口   │ ◄──────► │  http.Client     │          │
+│  │  (可扩展)        │          │  (标准库)        │          │
 │  └──────────────────┘          └──────────────────┘          │
-│           △                              │                    │
-│           │                              ▼                    │
-│  ┌──────────────────┐          ┌──────────────────┐          │
-│  │  Custom Clients  │          │   Retry Logic    │          │
-│  └──────────────────┘          └──────────────────┘          │
+│           △                                                    │
+│           │                                                    │
+│  ┌──────────────────────────────────────────────┐            │
+│  │  支持第三方 HTTP 库（通过适配器）               │            │
+│  │  - go-resty                                  │            │
+│  │  - go-retryablehttp                          │            │
+│  │  - 自定义 HTTP 客户端                         │            │
+│  └──────────────────────────────────────────────┘            │
 └──────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -137,7 +141,7 @@ for {
 ```
 zhinao-go/
 ├── client.go              # 客户端入口和初始化
-├── config.go              # 配置管理（函数式选项模式）
+├── config.go              # 配置管理（函数式选项模式，包含 HTTPDoer 接口）
 ├── chat.go               # 聊天补全服务
 ├── chat_builder.go       # 聊天请求 Builder
 ├── chat_stream.go        # 流式响应处理
@@ -148,18 +152,17 @@ zhinao-go/
 ├── constants.go          # 常量定义（模型名、角色等）
 ├── errors.go             # 错误类型定义
 ├── internal/             # 内部实现（不导出）
-│   ├── http/            # HTTP 客户端抽象层
-│   │   ├── client.go    # HTTP 客户端接口
-│   │   ├── standard.go  # 标准 HTTP 客户端实现
-│   │   └── retry.go     # 重试逻辑实现
-│   ├── test/            # 测试工具
-│   │   ├── server.go    # Mock HTTP 服务器
-│   │   └── handlers.go  # 测试请求处理器
-│   └── utils/           # 内部工具函数
+│   └── test/            # 测试工具
+│       ├── server.go    # Mock HTTP 服务器
+│       └── handlers.go  # 测试请求处理器
 ├── examples/            # 完整使用示例
 │   ├── chat-completion/
 │   ├── stream-chat/
 │   ├── chat-with-tools/
+│   ├── chat-with-builder/
+│   ├── chatbot/
+│   ├── custom-http-client/  # 自定义 HTTP 客户端示例
+│   ├── list-models/
 │   ├── embeddings/
 │   └── text2img/
 └── docs/               # 文档
@@ -172,9 +175,9 @@ zhinao-go/
 
 1. **易用性** - 简洁直观的 API，降低学习成本
 2. **类型安全** - 充分利用 Go 的类型系统
-3. **可扩展性** - 支持未来功能扩展
+3. **可扩展性** - HTTPDoer 接口支持灵活扩展和第三方库集成
 4. **高性能** - 优化网络请求和资源使用
-5. **可靠性** - 内置重试机制和错误处理
+5. **可靠性** - 完善的错误处理和超时控制
 
 ---
 
@@ -188,9 +191,10 @@ zhinao-go/
 client, err := zhinao.NewClient(
     apiKey,
     zhinao.WithTimeout(30*time.Second),
-    zhinao.WithRetry(5, 2*time.Second),
     zhinao.WithBaseURL("https://custom-api.360.cn/v1"),
-    zhinao.WithUserAgent("MyApp/1.0"),
+    zhinao.WithHeaders(map[string]string{
+        "User-Agent": "MyApp/1.0",
+    }),
 )
 ```
 
@@ -295,11 +299,13 @@ if err != nil {
     switch e := err.(type) {
     case *zhinao.APIError:
         fmt.Printf("API错误: %s (状态码: %d)\n", e.Message, e.StatusCode)
-        if e.IsRetryable() {
-            // 可以重试
+        // 根据状态码决定是否重试
+        if e.StatusCode >= 500 || e.StatusCode == 429 {
+            // 可以考虑重试
         }
     case *zhinao.RateLimitError:
         fmt.Printf("限流错误，请在 %d 秒后重试\n", e.RetryAfter)
+        time.Sleep(time.Duration(e.RetryAfter) * time.Second)
     case *zhinao.ValidationError:
         fmt.Printf("验证错误: %s - %s\n", e.Field, e.Message)
     default:
@@ -309,22 +315,32 @@ if err != nil {
 }
 ```
 
-### 5. 自动重试机制
+### 5. 自定义 HTTP 客户端
 
-SDK 内置智能重试机制：
+SDK 通过 HTTPDoer 接口支持自定义 HTTP 客户端：
 
 ```go
+// 使用自定义 http.Client
+customHTTPClient := &http.Client{
+    Timeout: 30 * time.Second,
+    Transport: &http.Transport{
+        MaxIdleConns:        100,
+        MaxIdleConnsPerHost: 10,
+    },
+}
+
 client, err := zhinao.NewClient(
     apiKey,
-    zhinao.WithRetry(5, 2*time.Second), // 最多重试5次，初始延迟2秒
+    zhinao.WithHTTPClient(customHTTPClient),
 )
 ```
 
-**特性**：
-- 自动识别可重试错误（5xx、429、408）
-- 指数退避策略
-- 遵守 context 取消
-- 遵守服务器的 Retry-After 头
+**支持的场景**：
+- 使用标准库 `http.Client`
+- 集成第三方 HTTP 库（如 go-resty、go-retryablehttp）
+- 实现自定义的 HTTPDoer 接口
+
+详见示例：`examples/custom-http-client/`
 
 ### 6. 工具调用（Function Calling）
 
@@ -719,19 +735,32 @@ defer cancel()
 resp, err := client.Chat.CreateCompletion(ctx, req)
 ```
 
-### 5. 合理配置重试策略
+### 5. 错误处理
+
+SDK 提供了完善的错误类型供精准处理：
 
 ```go
-client, err := zhinao.NewClient(
-    apiKey,
-    zhinao.WithRetry(3, 1*time.Second), // 生产环境：适度重试
-)
+resp, err := client.Chat.CreateCompletion(ctx, req)
+if err != nil {
+    switch e := err.(type) {
+    case *zhinao.APIError:
+        log.Printf("API错误: %s (状态码: %d)\n", e.Message, e.StatusCode)
+    case *zhinao.RateLimitError:
+        log.Printf("限流错误，建议等待 %d 秒后重试\n", e.RetryAfter)
+    case *zhinao.ValidationError:
+        log.Printf("验证错误: %s - %s\n", e.Field, e.Message)
+    default:
+        log.Printf("未知错误: %v\n", err)
+    }
+    return
+}
 ```
 
-**建议**：
-- 开发环境：少重试或不重试
-- 生产环境：3-5 次重试
-- 关键业务：更多重试 + 告警
+**错误类型说明**：
+- `APIError` - API 返回的错误，包含状态码和详细信息
+- `RateLimitError` - 限流错误，包含建议的等待时间
+- `ValidationError` - 请求验证错误
+- 预定义错误 - `ErrMissingAPIKey`、`ErrInvalidModel` 等
 
 ### 6. 维护对话历史
 

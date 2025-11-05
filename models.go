@@ -2,29 +2,11 @@ package zhinao
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
-// ModelsService 模型服务接口
-type ModelsService interface {
-	// List 获取可用模型列表
-	List(ctx context.Context) (*ModelsResponse, error)
-
-	// Get 获取指定模型信息
-	Get(ctx context.Context, modelID string) (*ModelInfo, error)
-}
-
-// modelsService 模型服务实现
-type modelsService struct {
-	client *Client
-}
-
-// newModelsService 创建模型服务实例
-func newModelsService(client *Client) ModelsService {
-	return &modelsService{client: client}
-}
-
-// List 获取可用模型列表
+// ListModels 获取可用模型列表
 //
 // 参数:
 //   - ctx: 上下文，用于控制请求的生命周期
@@ -35,30 +17,37 @@ func newModelsService(client *Client) ModelsService {
 //
 // 示例:
 //
-//	resp, err := client.Models.List(ctx)
+//	resp, err := client.ListModels(ctx)
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
 //	for _, model := range resp.Data {
 //	    fmt.Printf("Model: %s\n", model.ID)
 //	}
-func (s *modelsService) List(ctx context.Context) (*ModelsResponse, error) {
-	var resp ModelsResponse
-	err := s.client.httpClient.Get(
-		ctx,
-		"/models",
-		&resp,
-		s.client.config.APIKey,
-	)
-
+func (c *Client) ListModels(ctx context.Context) (*ModelsResponse, error) {
+	// 构建请求
+	httpReq, err := c.buildRequest(ctx, "GET", "/models", nil)
 	if err != nil {
 		return nil, err
+	}
+
+	// 发送请求
+	httpResp, err := c.doRequest(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+
+	// 解析响应
+	var resp ModelsResponse
+	if err := json.NewDecoder(httpResp.Body).Decode(&resp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &resp, nil
 }
 
-// Get 获取指定模型信息
+// GetModel 获取指定模型信息
 //
 // 参数:
 //   - ctx: 上下文，用于控制请求的生命周期
@@ -70,26 +59,33 @@ func (s *modelsService) List(ctx context.Context) (*ModelsResponse, error) {
 //
 // 示例:
 //
-//	info, err := client.Models.Get(ctx, "360gpt-turbo")
+//	info, err := client.GetModel(ctx, "360gpt-turbo")
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
 //	fmt.Printf("Model: %s, Owner: %s\n", info.ID, info.OwnedBy)
-func (s *modelsService) Get(ctx context.Context, modelID string) (*ModelInfo, error) {
+func (c *Client) GetModel(ctx context.Context, modelID string) (*ModelInfo, error) {
 	if modelID == "" {
 		return nil, fmt.Errorf("model ID cannot be empty")
 	}
 
-	var resp ModelInfo
-	err := s.client.httpClient.Get(
-		ctx,
-		"/models/"+modelID,
-		&resp,
-		s.client.config.APIKey,
-	)
-
+	// 构建请求
+	httpReq, err := c.buildRequest(ctx, "GET", "/models/"+modelID, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	// 发送请求
+	httpResp, err := c.doRequest(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+
+	// 解析响应
+	var resp ModelInfo
+	if err := json.NewDecoder(httpResp.Body).Decode(&resp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &resp, nil

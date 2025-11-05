@@ -51,7 +51,7 @@ func runBasicExample(ctx context.Context, client *zhinao.Client) {
 		Height: 512,
 	}
 
-	resp, err := client.Images.Text2Img(ctx, basicRequest)
+	resp, err := client.Text2Img(ctx, basicRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -86,7 +86,7 @@ func runNegativePromptExample(ctx context.Context, client *zhinao.Client) {
 		GuidanceScale:  8.5,
 	}
 
-	resp, err := client.Images.Text2Img(ctx, negativeRequest)
+	resp, err := client.Text2Img(ctx, negativeRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -131,7 +131,7 @@ func runStylesExample(ctx context.Context, client *zhinao.Client) {
 			Height: 512,
 		}
 
-		resp, err := client.Images.Text2Img(ctx, styleRequest)
+		resp, err := client.Text2Img(ctx, styleRequest)
 		if err != nil {
 			log.Printf("  ❌ %s风格生成失败: %v\n", s.name, err)
 			continue
@@ -163,7 +163,7 @@ func runBatchExample(ctx context.Context, client *zhinao.Client) {
 		Seed:    12345,
 	}
 
-	resp, err := client.Images.Text2Img(ctx, batchRequest)
+	resp, err := client.Text2Img(ctx, batchRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return
@@ -201,7 +201,7 @@ func runCustomExample(ctx context.Context, client *zhinao.Client) {
 		EnhancePrompt:     true,
 	}
 
-	resp, err := client.Images.Text2Img(ctx, customRequest)
+	resp, err := client.Text2Img(ctx, customRequest)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 		return

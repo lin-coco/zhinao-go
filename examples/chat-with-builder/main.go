@@ -30,7 +30,7 @@ func main() {
 	fmt.Printf("- TopP: %.1f\n", req.TopP)
 	fmt.Printf("- Messages: %d 条\n\n", len(req.Messages))
 
-	resp, err := client.Chat.CreateCompletion(context.Background(), req)
+	resp, err := client.CreateCompletion(context.Background(), req)
 	if err != nil {
 		fmt.Printf("ChatCompletion error: %v\n", err)
 		return

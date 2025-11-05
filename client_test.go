@@ -39,14 +39,6 @@ func TestNewClient(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:   "with retry option",
-			apiKey: "test-api-key",
-			opts: []Option{
-				WithRetry(5, 2*time.Second),
-			},
-			wantErr: false,
-		},
-		{
 			name:   "with base url option",
 			apiKey: "test-api-key",
 			opts: []Option{
@@ -127,21 +119,6 @@ func TestClientWithOptions(t *testing.T) {
 		}
 	})
 
-	t.Run("with retry", func(t *testing.T) {
-		maxRetries := 5
-		retryDelay := 2 * time.Second
-		client, err := NewClient(apiKey, WithRetry(maxRetries, retryDelay))
-		if err != nil {
-			t.Fatalf("NewClient() error = %v", err)
-		}
-		if client.config.MaxRetries != maxRetries {
-			t.Errorf("MaxRetries = %v, want %v", client.config.MaxRetries, maxRetries)
-		}
-		if client.config.RetryDelay != retryDelay {
-			t.Errorf("RetryDelay = %v, want %v", client.config.RetryDelay, retryDelay)
-		}
-	})
-
 	t.Run("with base url", func(t *testing.T) {
 		baseURL := "https://custom.api.com/v1"
 		client, err := NewClient(apiKey, WithBaseURL(baseURL))
@@ -150,17 +127,6 @@ func TestClientWithOptions(t *testing.T) {
 		}
 		if client.config.BaseURL != baseURL {
 			t.Errorf("BaseURL = %v, want %v", client.config.BaseURL, baseURL)
-		}
-	})
-
-	t.Run("with user agent", func(t *testing.T) {
-		userAgent := "MyApp/1.0"
-		client, err := NewClient(apiKey, WithUserAgent(userAgent))
-		if err != nil {
-			t.Fatalf("NewClient() error = %v", err)
-		}
-		if client.config.UserAgent != userAgent {
-			t.Errorf("UserAgent = %v, want %v", client.config.UserAgent, userAgent)
 		}
 	})
 

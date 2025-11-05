@@ -33,14 +33,6 @@ func (e *APIError) Error() string {
 		e.StatusCode, e.Type, e.Message, e.Code)
 }
 
-// IsRetryable 判断错误是否可重试
-func (e *APIError) IsRetryable() bool {
-	// 5xx 服务器错误和特定的 4xx 错误可重试
-	return e.StatusCode >= 500 ||
-		e.StatusCode == 429 || // Too Many Requests
-		e.StatusCode == 408 // Request Timeout
-}
-
 // RateLimitError 限流错误
 type RateLimitError struct {
 	*APIError

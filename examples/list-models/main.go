@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("=== 获取可用模型列表 ===")
 
 	// 获取模型列表
-	models, err := client.Models.List(context.Background())
+	models, err := client.ListModels(context.Background())
 	if err != nil {
 		log.Fatalf("获取模型列表失败: %v\n", err)
 	}
@@ -37,7 +37,7 @@ func main() {
 		modelID := models.Data[0].ID
 		fmt.Printf("=== 获取模型 '%s' 的详细信息 ===\n\n", modelID)
 
-		info, err := client.Models.Get(context.Background(), modelID)
+		info, err := client.GetModel(context.Background(), modelID)
 		if err != nil {
 			log.Fatalf("获取模型信息失败: %v\n", err)
 		}
@@ -50,7 +50,7 @@ func main() {
 	// 也可以直接查询指定模型
 	fmt.Println("\n=== 查询指定模型 ===")
 
-	turboInfo, err := client.Models.Get(context.Background(), zhinao.Model360GPTTurbo)
+	turboInfo, err := client.GetModel(context.Background(), zhinao.Model360GPTTurbo)
 	if err != nil {
 		log.Printf("获取 %s 模型失败: %v\n", zhinao.Model360GPTTurbo, err)
 	} else {

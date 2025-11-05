@@ -19,49 +19,6 @@ func TestAPIError(t *testing.T) {
 			t.Errorf("Error() = %v, want %v", err.Error(), expected)
 		}
 	})
-
-	t.Run("is retryable - 5xx errors", func(t *testing.T) {
-		err := &APIError{StatusCode: 500}
-		if !err.IsRetryable() {
-			t.Error("500 errors should be retryable")
-		}
-
-		err = &APIError{StatusCode: 503}
-		if !err.IsRetryable() {
-			t.Error("503 errors should be retryable")
-		}
-	})
-
-	t.Run("is retryable - 429 rate limit", func(t *testing.T) {
-		err := &APIError{StatusCode: 429}
-		if !err.IsRetryable() {
-			t.Error("429 errors should be retryable")
-		}
-	})
-
-	t.Run("is retryable - 408 timeout", func(t *testing.T) {
-		err := &APIError{StatusCode: 408}
-		if !err.IsRetryable() {
-			t.Error("408 errors should be retryable")
-		}
-	})
-
-	t.Run("is not retryable - 4xx errors", func(t *testing.T) {
-		err := &APIError{StatusCode: 400}
-		if err.IsRetryable() {
-			t.Error("400 errors should not be retryable")
-		}
-
-		err = &APIError{StatusCode: 401}
-		if err.IsRetryable() {
-			t.Error("401 errors should not be retryable")
-		}
-
-		err = &APIError{StatusCode: 404}
-		if err.IsRetryable() {
-			t.Error("404 errors should not be retryable")
-		}
-	})
 }
 
 func TestRateLimitError(t *testing.T) {
