@@ -88,9 +88,11 @@ type Delta struct {
 
 // Usage token使用情况
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
-	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+	PromptTokens          int `json:"prompt_tokens"`            // 输入 token 消耗量
+	CompletionTokens      int `json:"completion_tokens"`        // 输出 token 消耗量
+	TotalTokens           int `json:"total_tokens"`             // 总 token 消耗量
+	PromptCacheHitTokens  int `json:"prompt_cache_hit_tokens"`  // 命中缓存的token数
+	PromptCacheMissTokens int `json:"prompt_cache_miss_tokens"` // 未命中缓存的token数
 }
 
 // Tool 工具定义

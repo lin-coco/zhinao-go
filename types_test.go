@@ -145,15 +145,59 @@ func TestMessageValidation(t *testing.T) {
 }
 
 func TestUsageInfo(t *testing.T) {
-	usage := Usage{
-		PromptTokens:     10,
-		CompletionTokens: 20,
-		TotalTokens:      30,
-	}
+	t.Run("basic usage info", func(t *testing.T) {
+		usage := Usage{
+			PromptTokens:     10,
+			CompletionTokens: 20,
+			TotalTokens:      30,
+		}
 
-	if usage.TotalTokens != usage.PromptTokens+usage.CompletionTokens {
-		t.Error("Total tokens should equal prompt + completion")
-	}
+		if usage.TotalTokens != usage.PromptTokens+usage.CompletionTokens {
+			t.Error("Total tokens should equal prompt + completion")
+		}
+	})
+
+	t.Run("usage with cache info", func(t *testing.T) {
+		usage := Usage{
+			PromptTokens:          425,
+			CompletionTokens:      67,
+			TotalTokens:           492,
+			PromptCacheHitTokens:  320,
+			PromptCacheMissTokens: 105,
+		}
+
+		// 验证总token数等于提示词token数加上完成token数
+		if usage.TotalTokens != usage.PromptTokens+usage.CompletionTokens {
+			t.Errorf("Total tokens (%d) should equal prompt tokens (%d) + completion tokens (%d)",
+				usage.TotalTokens, usage.PromptTokens, usage.CompletionTokens)
+		}
+
+		// 验证缓存命中token数和未命中token数之和等于提示词token数
+		if usage.PromptCacheHitTokens+usage.PromptCacheMissTokens != usage.PromptTokens {
+			t.Errorf("Cache hit tokens (%d) + cache miss tokens (%d) should equal prompt tokens (%d)",
+				usage.PromptCacheHitTokens, usage.PromptCacheMissTokens, usage.PromptTokens)
+		}
+	})
+
+	t.Run("usage without cache (backward compatibility)", func(t *testing.T) {
+		usage := Usage{
+			PromptTokens:          20,
+			CompletionTokens:      14,
+			TotalTokens:           34,
+			PromptCacheHitTokens:  0,
+			PromptCacheMissTokens: 20,
+		}
+
+		// 当没有缓存命中时，所有提示词token都应该是未命中的
+		if usage.PromptCacheMissTokens != usage.PromptTokens {
+			t.Errorf("When no cache hits, cache miss tokens (%d) should equal prompt tokens (%d)",
+				usage.PromptCacheMissTokens, usage.PromptTokens)
+		}
+
+		if usage.PromptCacheHitTokens != 0 {
+			t.Errorf("Expected no cache hits (0), got %d", usage.PromptCacheHitTokens)
+		}
+	})
 }
 
 // TestFunctionParameters 测试 FunctionParameters 结构体
