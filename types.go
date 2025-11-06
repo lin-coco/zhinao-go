@@ -18,11 +18,11 @@ type ChatCompletionRequest struct {
 	Model             string                  `json:"model"`                        // 模型名称（必需）
 	Messages          []ChatCompletionMessage `json:"messages"`                     // 消息列表（必需）
 	Stream            bool                    `json:"stream,omitempty"`             // 是否流式输出
-	Temperature       float64                 `json:"temperature,omitempty"`        // 温度参数 [0, 1]，默认0.9
+	Temperature       float32                 `json:"temperature,omitempty"`        // 温度参数 [0, 1]，默认0.9
 	MaxTokens         int                     `json:"max_tokens,omitempty"`         // 最大生成token数 [1, 2048]，默认2048
-	TopP              float64                 `json:"top_p,omitempty"`              // 核采样参数 [0, 1]，默认0.5
+	TopP              float32                 `json:"top_p,omitempty"`              // 核采样参数 [0, 1]，默认0.5
 	TopK              int                     `json:"top_k,omitempty"`              // TopK参数 [0, 1024]，默认0
-	RepetitionPenalty float64                 `json:"repetition_penalty,omitempty"` // 重复惩罚 [1, 2]，默认1.05
+	RepetitionPenalty float32                 `json:"repetition_penalty,omitempty"` // 重复惩罚 [1, 2]，默认1.05
 	NumBeams          int                     `json:"num_beams,omitempty"`          // beam search数量 [1, 5]，默认1
 	Tools             []Tool                  `json:"tools,omitempty"`              // 工具列表
 	ToolChoice        interface{}             `json:"tool_choice,omitempty"`        // 工具选择，可以是字符串或结构体
@@ -244,7 +244,7 @@ type ImageRequest struct {
 
 	// GuidanceScale 提示词强度（可选）
 	// 取值应大于等于 7.5 小于等于 15，默认是 7.5
-	GuidanceScale float64 `json:"guidance_scale,omitempty"`
+	GuidanceScale float32 `json:"guidance_scale,omitempty"`
 
 	// EnhancePrompt 是否进行 prompt 润色（可选）
 	// 默认是 false
@@ -321,7 +321,7 @@ type ImageMeta struct {
 	W int `json:"W"`
 
 	// GuidanceScale 提示词强度
-	GuidanceScale float64 `json:"guidance_scale"`
+	GuidanceScale float32 `json:"guidance_scale"`
 
 	// NSamples 一次请求生成的图片数
 	NSamples int `json:"n_samples"`
