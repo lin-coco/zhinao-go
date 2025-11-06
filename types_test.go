@@ -155,3 +155,171 @@ func TestUsageInfo(t *testing.T) {
 		t.Error("Total tokens should equal prompt + completion")
 	}
 }
+
+// TestFunctionParameters 测试 FunctionParameters 结构体
+func TestFunctionParameters(t *testing.T) {
+	t.Run("basic function parameters", func(t *testing.T) {
+		params := FunctionParameters{
+			Type: "object",
+			Properties: map[string]interface{}{
+				"location": map[string]interface{}{
+					"type":        "string",
+					"description": "城市名称",
+				},
+			},
+			Required: []string{"location"},
+		}
+
+		if params.Type != "object" {
+			t.Errorf("Expected type 'object', got '%s'", params.Type)
+		}
+
+		if len(params.Required) != 1 || params.Required[0] != "location" {
+			t.Errorf("Expected required ['location'], got %v", params.Required)
+		}
+	})
+
+	t.Run("function parameters from API example", func(t *testing.T) {
+		// 基于官方文档示例
+		params := FunctionParameters{
+			Type: "object",
+			Properties: map[string]interface{}{
+				"from": map[string]interface{}{
+					"type":        "string",
+					"description": "出发地",
+				},
+				"to": map[string]interface{}{
+					"type":        "string",
+					"description": "目的地",
+				},
+			},
+			Required: []string{"from", "to"},
+		}
+
+		if params.Type != "object" {
+			t.Errorf("Expected type 'object', got '%s'", params.Type)
+		}
+
+		if len(params.Properties) != 2 {
+			t.Errorf("Expected 2 properties, got %d", len(params.Properties))
+		}
+
+		if len(params.Required) != 2 {
+			t.Errorf("Expected 2 required fields, got %d", len(params.Required))
+		}
+	})
+}
+
+// TestToolChoiceFunction 测试 ToolChoiceFunction 结构体
+func TestToolChoiceFunction(t *testing.T) {
+	t.Run("basic tool choice function", func(t *testing.T) {
+		tcf := ToolChoiceFunction{
+			Name: "getTrain",
+		}
+
+		if tcf.Name != "getTrain" {
+			t.Errorf("Expected name 'getTrain', got '%s'", tcf.Name)
+		}
+	})
+}
+
+// TestToolChoice 测试 ToolChoice 结构体
+func TestToolChoice(t *testing.T) {
+	t.Run("tool choice with function", func(t *testing.T) {
+		toolChoice := ToolChoice{
+			Type: "function",
+			Function: ToolChoiceFunction{
+				Name: "my_function",
+			},
+		}
+
+		if toolChoice.Type != "function" {
+			t.Errorf("Expected type 'function', got '%s'", toolChoice.Type)
+		}
+
+		if toolChoice.Function.Name != "my_function" {
+			t.Errorf("Expected function name 'my_function', got '%s'", toolChoice.Function.Name)
+		}
+	})
+}
+
+// TestToolFunctionWithFunctionParameters 测试 ToolFunction 使用 FunctionParameters
+func TestToolFunctionWithFunctionParameters(t *testing.T) {
+	t.Run("tool function with FunctionParameters", func(t *testing.T) {
+		params := &FunctionParameters{
+			Type: "object",
+			Properties: map[string]interface{}{
+				"location": map[string]interface{}{
+					"type":        "string",
+					"description": "查询景点的地名",
+				},
+			},
+			Required: []string{"location"},
+		}
+
+		toolFunc := ToolFunction{
+			Name:        "getSights",
+			Description: "查询景点",
+			Parameters:  params,
+		}
+
+		if toolFunc.Name != "getSights" {
+			t.Errorf("Expected name 'getSights', got '%s'", toolFunc.Name)
+		}
+
+		if toolFunc.Parameters == nil {
+			t.Error("Parameters should not be nil")
+		}
+
+		if toolFunc.Parameters.Type != "object" {
+			t.Errorf("Expected parameters type 'object', got '%s'", toolFunc.Parameters.Type)
+		}
+	})
+}
+
+// TestCompleteToolDefinition 测试完整的工具定义（基于官方文档）
+func TestCompleteToolDefinition(t *testing.T) {
+	t.Run("complete tool from API example", func(t *testing.T) {
+		tool := Tool{
+			Type: "function",
+			Function: ToolFunction{
+				Name:        "getTrain",
+				Description: "查询火车票",
+				Parameters: &FunctionParameters{
+					Type: "object",
+					Properties: map[string]interface{}{
+						"from": map[string]interface{}{
+							"type":        "string",
+							"description": "出发地",
+						},
+						"to": map[string]interface{}{
+							"type":        "string",
+							"description": "目的地",
+						},
+					},
+					Required: []string{"from", "to"},
+				},
+			},
+		}
+
+		if tool.Type != "function" {
+			t.Errorf("Expected type 'function', got '%s'", tool.Type)
+		}
+
+		if tool.Function.Name != "getTrain" {
+			t.Errorf("Expected function name 'getTrain', got '%s'", tool.Function.Name)
+		}
+
+		if tool.Function.Description != "查询火车票" {
+			t.Errorf("Expected description '查询火车票', got '%s'", tool.Function.Description)
+		}
+
+		if tool.Function.Parameters == nil {
+			t.Fatal("Parameters should not be nil")
+		}
+
+		if len(tool.Function.Parameters.Required) != 2 {
+			t.Errorf("Expected 2 required parameters, got %d", len(tool.Function.Parameters.Required))
+		}
+	})
+}

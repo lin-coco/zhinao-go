@@ -233,15 +233,15 @@ func TestChatCompletion_WithTools_Mock(t *testing.T) {
 		Function: ToolFunction{
 			Name:        "get_weather",
 			Description: "获取指定城市的天气信息",
-			Parameters: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
+			Parameters: &FunctionParameters{
+				Type: "object",
+				Properties: map[string]interface{}{
 					"city": map[string]interface{}{
 						"type":        "string",
 						"description": "城市名称",
 					},
 				},
-				"required": []string{"city"},
+				Required: []string{"city"},
 			},
 		},
 	}

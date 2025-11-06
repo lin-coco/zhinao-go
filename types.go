@@ -101,9 +101,27 @@ type Tool struct {
 
 // ToolFunction 工具函数定义
 type ToolFunction struct {
-	Name        string      `json:"name"`                  // 函数名（必需）
-	Description string      `json:"description,omitempty"` // 函数描述
-	Parameters  interface{} `json:"parameters,omitempty"`  // 函数参数，JSON Schema格式
+	Name        string              `json:"name"`                  // 函数名（必需）
+	Description string              `json:"description,omitempty"` // 函数描述
+	Parameters  *FunctionParameters `json:"parameters,omitempty"`  // 函数参数
+}
+
+// FunctionParameters 函数参数定义
+type FunctionParameters struct {
+	Type       string                 `json:"type"`                 // 参数类型，例如 "object"（必需）
+	Properties map[string]interface{} `json:"properties,omitempty"` // 参数属性（可选）
+	Required   []string               `json:"required,omitempty"`   // 必需参数名称列表（可选）
+}
+
+// ToolChoice 工具选择定义
+type ToolChoice struct {
+	Type     string             `json:"type"`               // 工具类型，例如 "function"（必需）
+	Function ToolChoiceFunction `json:"function,omitempty"` // 函数详情（当 type 为 "function" 时需要）
+}
+
+// ToolChoiceFunction 工具选择中的函数详情
+type ToolChoiceFunction struct {
+	Name string `json:"name"` // 要调用的函数名称（必需）
 }
 
 // ToolCall 工具调用

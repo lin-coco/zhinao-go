@@ -20,9 +20,9 @@ func main() {
 		Function: zhinao.ToolFunction{
 			Name:        "get_current_weather",
 			Description: "获取指定城市的当前天气",
-			Parameters: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
+			Parameters: &zhinao.FunctionParameters{
+				Type: "object",
+				Properties: map[string]interface{}{
 					"location": map[string]interface{}{
 						"type":        "string",
 						"description": "城市名称，例如：北京、上海",
@@ -32,7 +32,7 @@ func main() {
 						"enum": []string{"celsius", "fahrenheit"},
 					},
 				},
-				"required": []string{"location"},
+				Required: []string{"location"},
 			},
 		},
 	}
