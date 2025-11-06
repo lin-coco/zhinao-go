@@ -386,7 +386,7 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 					FinishReason: "stop",
 				},
 			},
-			Usage: Usage{
+			Usage: &Usage{
 				PromptTokens:          425,
 				CompletionTokens:      67,
 				TotalTokens:           492,
@@ -407,7 +407,12 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 			t.Errorf("Expected 1 choice, got %d", len(response.Choices))
 		}
 
-		// 验证 Usage 字段
+		// 验证 Usage 字段不为 nil
+		if response.Usage == nil {
+			t.Fatal("Expected Usage to be non-nil")
+		}
+
+		// 验证 Usage 字段的值
 		if response.Usage.TotalTokens != 492 {
 			t.Errorf("Expected total tokens 492, got %d", response.Usage.TotalTokens)
 		}
@@ -417,7 +422,7 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 		}
 	})
 
-	t.Run("stream response without usage (backward compatibility)", func(t *testing.T) {
+	t.Run("stream response without usage", func(t *testing.T) {
 		response := ChatCompletionStreamResponse{
 			ID:      "chatcmpl-456",
 			Object:  "chat.completion.chunk",
@@ -431,17 +436,17 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 					},
 				},
 			},
-			// Usage 字段为零值，表示此块不包含 usage 信息
-			Usage: Usage{},
+			// Usage 字段为 nil，表示此块不包含 usage 信息
+			Usage: nil,
 		}
 
 		if response.ID != "chatcmpl-456" {
 			t.Errorf("Expected ID 'chatcmpl-456', got '%s'", response.ID)
 		}
 
-		// 验证零值 Usage
-		if response.Usage.TotalTokens != 0 {
-			t.Errorf("Expected total tokens 0, got %d", response.Usage.TotalTokens)
+		// 验证 Usage 为 nil
+		if response.Usage != nil {
+			t.Errorf("Expected Usage to be nil, got %v", response.Usage)
 		}
 	})
 
@@ -470,7 +475,7 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 					FinishReason: "tool_calls",
 				},
 			},
-			Usage: Usage{
+			Usage: &Usage{
 				PromptTokens:     50,
 				CompletionTokens: 30,
 				TotalTokens:      80,
@@ -487,6 +492,11 @@ func TestChatCompletionStreamResponse(t *testing.T) {
 
 		if response.Choices[0].FinishReason != "tool_calls" {
 			t.Errorf("Expected finish reason 'tool_calls', got '%s'", response.Choices[0].FinishReason)
+		}
+
+		// 验证 Usage 不为 nil
+		if response.Usage == nil {
+			t.Fatal("Expected Usage to be non-nil")
 		}
 
 		if response.Usage.TotalTokens != 80 {

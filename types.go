@@ -70,7 +70,10 @@ type ChatCompletionStreamResponse struct {
 	Created int64                        `json:"created"`
 	Model   string                       `json:"model"`
 	Choices []ChatCompletionStreamChoice `json:"choices"`
-	Usage   Usage                        `json:"usage"`
+	// Usage token使用情况（可选）
+	// 注意：API在流式响应中并非每个chunk都返回usage信息，通常只在第一个和最后一个chunk中返回
+	// 使用指针类型便于判断该字段是否存在：nil表示当前chunk未包含usage信息
+	Usage *Usage `json:"usage,omitempty"`
 }
 
 // ChatCompletionStreamChoice 流式响应选择项
