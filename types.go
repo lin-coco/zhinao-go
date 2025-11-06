@@ -70,6 +70,7 @@ type ChatCompletionStreamResponse struct {
 	Created int64                        `json:"created"`
 	Model   string                       `json:"model"`
 	Choices []ChatCompletionStreamChoice `json:"choices"`
+	Usage   Usage                        `json:"usage"`
 }
 
 // ChatCompletionStreamChoice 流式响应选择项

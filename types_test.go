@@ -367,3 +367,130 @@ func TestCompleteToolDefinition(t *testing.T) {
 		}
 	})
 }
+
+// TestChatCompletionStreamResponse 测试流式响应结构体
+func TestChatCompletionStreamResponse(t *testing.T) {
+	t.Run("stream response with usage", func(t *testing.T) {
+		response := ChatCompletionStreamResponse{
+			ID:      "chatcmpl-123",
+			Object:  "chat.completion.chunk",
+			Created: 1234567890,
+			Model:   "360gpt-turbo",
+			Choices: []ChatCompletionStreamChoice{
+				{
+					Index: 0,
+					Delta: Delta{
+						Role:    "assistant",
+						Content: "Hello",
+					},
+					FinishReason: "stop",
+				},
+			},
+			Usage: Usage{
+				PromptTokens:          425,
+				CompletionTokens:      67,
+				TotalTokens:           492,
+				PromptCacheHitTokens:  320,
+				PromptCacheMissTokens: 105,
+			},
+		}
+
+		if response.ID != "chatcmpl-123" {
+			t.Errorf("Expected ID 'chatcmpl-123', got '%s'", response.ID)
+		}
+
+		if response.Model != "360gpt-turbo" {
+			t.Errorf("Expected model '360gpt-turbo', got '%s'", response.Model)
+		}
+
+		if len(response.Choices) != 1 {
+			t.Errorf("Expected 1 choice, got %d", len(response.Choices))
+		}
+
+		// 验证 Usage 字段
+		if response.Usage.TotalTokens != 492 {
+			t.Errorf("Expected total tokens 492, got %d", response.Usage.TotalTokens)
+		}
+
+		if response.Usage.PromptCacheHitTokens != 320 {
+			t.Errorf("Expected cache hit tokens 320, got %d", response.Usage.PromptCacheHitTokens)
+		}
+	})
+
+	t.Run("stream response without usage (backward compatibility)", func(t *testing.T) {
+		response := ChatCompletionStreamResponse{
+			ID:      "chatcmpl-456",
+			Object:  "chat.completion.chunk",
+			Created: 1234567890,
+			Model:   "360gpt-turbo",
+			Choices: []ChatCompletionStreamChoice{
+				{
+					Index: 0,
+					Delta: Delta{
+						Content: "World",
+					},
+				},
+			},
+			// Usage 字段为零值，表示此块不包含 usage 信息
+			Usage: Usage{},
+		}
+
+		if response.ID != "chatcmpl-456" {
+			t.Errorf("Expected ID 'chatcmpl-456', got '%s'", response.ID)
+		}
+
+		// 验证零值 Usage
+		if response.Usage.TotalTokens != 0 {
+			t.Errorf("Expected total tokens 0, got %d", response.Usage.TotalTokens)
+		}
+	})
+
+	t.Run("stream response with tool calls", func(t *testing.T) {
+		response := ChatCompletionStreamResponse{
+			ID:      "chatcmpl-789",
+			Object:  "chat.completion.chunk",
+			Created: 1234567890,
+			Model:   "360gpt-turbo",
+			Choices: []ChatCompletionStreamChoice{
+				{
+					Index: 0,
+					Delta: Delta{
+						Role: "assistant",
+						ToolCalls: []ToolCall{
+							{
+								ID:   "call_123",
+								Type: "function",
+								Function: ToolCallFunction{
+									Name:      "get_weather",
+									Arguments: `{"city": "Beijing"}`,
+								},
+							},
+						},
+					},
+					FinishReason: "tool_calls",
+				},
+			},
+			Usage: Usage{
+				PromptTokens:     50,
+				CompletionTokens: 30,
+				TotalTokens:      80,
+			},
+		}
+
+		if len(response.Choices) != 1 {
+			t.Fatalf("Expected 1 choice, got %d", len(response.Choices))
+		}
+
+		if len(response.Choices[0].Delta.ToolCalls) != 1 {
+			t.Errorf("Expected 1 tool call, got %d", len(response.Choices[0].Delta.ToolCalls))
+		}
+
+		if response.Choices[0].FinishReason != "tool_calls" {
+			t.Errorf("Expected finish reason 'tool_calls', got '%s'", response.Choices[0].FinishReason)
+		}
+
+		if response.Usage.TotalTokens != 80 {
+			t.Errorf("Expected total tokens 80, got %d", response.Usage.TotalTokens)
+		}
+	})
+}
