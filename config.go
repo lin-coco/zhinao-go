@@ -15,7 +15,7 @@ type HTTPDoer interface {
 
 const (
 	// DefaultBaseURL 默认 API 基础 URL
-	DefaultBaseURL = "https://api.360.cn/v1"
+	DefaultBaseURL = "https://api.360.cn"
 
 	// DefaultTimeout 默认超时时间
 	DefaultTimeout = 60 * time.Second

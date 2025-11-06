@@ -40,7 +40,7 @@ func (c *Client) CreateImage(ctx context.Context, req *ImageRequest) (*ImageResp
 	}
 
 	// 构建请求
-	httpReq, err := c.buildRequest(ctx, "POST", "/images/text2img", bytes.NewReader(jsonData))
+	httpReq, err := c.buildRequest(ctx, "POST", "/v1/images/text2img", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

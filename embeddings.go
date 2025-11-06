@@ -30,7 +30,7 @@ func (c *Client) CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*
 	}
 
 	// 构建请求
-	httpReq, err := c.buildRequest(ctx, "POST", "/embeddings", bytes.NewReader(jsonData))
+	httpReq, err := c.buildRequest(ctx, "POST", "/v1/embeddings", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

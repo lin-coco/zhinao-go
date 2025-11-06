@@ -85,7 +85,7 @@ func newChatStream(ctx context.Context, client *Client, req *ChatCompletionReque
 	}
 
 	// 创建请求
-	httpReq, err := client.buildRequest(ctx, "POST", "/chat/completions", bytes.NewReader(jsonData))
+	httpReq, err := client.buildRequest(ctx, "POST", "/v1/chat/completions", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

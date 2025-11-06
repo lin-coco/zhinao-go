@@ -12,7 +12,7 @@ func TestModelsList_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册模型列表处理器
-	server.RegisterHandler("/models", func(w http.ResponseWriter, r *http.Request) {
+	server.RegisterHandler("/v1/models", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			t.Errorf("Expected GET request, got %s", r.Method)
 		}
@@ -60,7 +60,7 @@ func TestModelsGet_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册获取模型处理器
-	server.RegisterHandler("/models/360gpt-turbo", func(w http.ResponseWriter, r *http.Request) {
+	server.RegisterHandler("/v1/models/360gpt-turbo", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			t.Errorf("Expected GET request, got %s", r.Method)
 		}
@@ -113,7 +113,7 @@ func TestModelsGet_NotFound_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册 404 处理器
-	server.RegisterHandler("/models/non-existent-model", func(w http.ResponseWriter, r *http.Request) {
+	server.RegisterHandler("/v1/models/non-existent-model", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		errResp := map[string]interface{}{
 			"error": map[string]interface{}{

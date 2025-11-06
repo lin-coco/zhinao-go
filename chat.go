@@ -42,7 +42,7 @@ func (c *Client) CreateChatCompletion(ctx context.Context, req *ChatCompletionRe
 	}
 
 	// 构建请求
-	httpReq, err := c.buildRequest(ctx, "POST", "/chat/completions", bytes.NewReader(jsonData))
+	httpReq, err := c.buildRequest(ctx, "POST", "/v1/chat/completions", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

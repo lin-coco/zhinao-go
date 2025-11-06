@@ -26,7 +26,7 @@ import (
 //	}
 func (c *Client) ListModels(ctx context.Context) (*ModelsResponse, error) {
 	// 构建请求
-	httpReq, err := c.buildRequest(ctx, "GET", "/models", nil)
+	httpReq, err := c.buildRequest(ctx, "GET", "/v1/models", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (c *Client) GetModel(ctx context.Context, modelID string) (*ModelInfo, erro
 	}
 
 	// 构建请求
-	httpReq, err := c.buildRequest(ctx, "GET", "/models/"+modelID, nil)
+	httpReq, err := c.buildRequest(ctx, "GET", "/v1/models/"+modelID, nil)
 	if err != nil {
 		return nil, err
 	}

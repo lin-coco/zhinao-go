@@ -17,8 +17,8 @@ func TestText2Img_Mock(t *testing.T) {
 		}
 
 		// 验证请求路径
-		if r.URL.Path != "/images/text2img" {
-			t.Errorf("Expected path /images/text2img, got %s", r.URL.Path)
+		if r.URL.Path != "/v1/images/text2img" {
+			t.Errorf("Expected path /v1/images/text2img, got %s", r.URL.Path)
 		}
 
 		// 验证 Authorization header

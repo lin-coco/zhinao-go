@@ -12,7 +12,7 @@ func TestEmbeddings_Mock(t *testing.T) {
 	// 创建 mock server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 验证请求
-		if r.URL.Path != "/embeddings" {
+		if r.URL.Path != "/v1/embeddings" {
 			t.Errorf("Expected path /v1/embeddings, got %s", r.URL.Path)
 		}
 

@@ -25,7 +25,7 @@ func TestChatCompletion_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册模拟的聊天补全响应
-	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
+	server.RegisterHandler("/v1/chat/completions", test.ChatCompletionResponse())
 
 	// 执行聊天补全请求
 	req := &ChatCompletionRequest{
@@ -67,7 +67,7 @@ func TestChatCompletion_WithBuilder_Mock(t *testing.T) {
 	client, server, teardown := setupZhinaoTestServer()
 	defer teardown()
 
-	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
+	server.RegisterHandler("/v1/chat/completions", test.ChatCompletionResponse())
 
 	// 使用 Builder 构建请求
 	req := NewChatCompletionBuilder().
@@ -102,7 +102,7 @@ func TestChatCompletion_InvalidAuth_Mock(t *testing.T) {
 	// 使用错误的 API Key
 	client, _ := NewClient("invalid-api-key", WithBaseURL(ts.URL))
 
-	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
+	server.RegisterHandler("/v1/chat/completions", test.ChatCompletionResponse())
 
 	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
@@ -133,7 +133,7 @@ func TestChatCompletion_RateLimit_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册限流响应
-	server.RegisterHandler("/chat/completions", test.RateLimitResponse(60))
+	server.RegisterHandler("/v1/chat/completions", test.RateLimitResponse(60))
 
 	req := &ChatCompletionRequest{
 		Model: Model360GPTTurbo,
@@ -164,7 +164,7 @@ func TestChatCompletion_ServerError_Mock(t *testing.T) {
 	defer teardown()
 
 	// 注册服务器错误响应
-	server.RegisterHandler("/chat/completions",
+	server.RegisterHandler("/v1/chat/completions",
 		test.ErrorResponse(500, "Internal server error", "server_error", "internal_error"))
 
 	req := &ChatCompletionRequest{
@@ -194,7 +194,7 @@ func TestChatCompletion_MultipleMessages_Mock(t *testing.T) {
 	client, server, teardown := setupZhinaoTestServer()
 	defer teardown()
 
-	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
+	server.RegisterHandler("/v1/chat/completions", test.ChatCompletionResponse())
 
 	// 构建多轮对话
 	req := NewChatCompletionBuilder().
@@ -225,7 +225,7 @@ func TestChatCompletion_WithTools_Mock(t *testing.T) {
 	client, server, teardown := setupZhinaoTestServer()
 	defer teardown()
 
-	server.RegisterHandler("/chat/completions", test.ChatCompletionResponse())
+	server.RegisterHandler("/v1/chat/completions", test.ChatCompletionResponse())
 
 	// 定义工具
 	tool := Tool{
