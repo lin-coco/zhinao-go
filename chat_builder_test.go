@@ -47,9 +47,9 @@ func TestChatBuilder(t *testing.T) {
 	})
 
 	t.Run("with parameters", func(t *testing.T) {
-		temperature := 0.7
+		temperature := float32(0.7)
 		maxTokens := 1000
-		topP := 0.9
+		topP := float32(0.9)
 
 		req := NewChatCompletionBuilder().
 			SetModel("360gpt-turbo").

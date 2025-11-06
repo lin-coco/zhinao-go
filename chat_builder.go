@@ -69,7 +69,7 @@ func (b *ChatCompletionBuilder) AddMessages(messages []ChatCompletionMessage) *C
 // 温度控制输出的随机性，范围 [0, 1]
 // - 较低的值（如 0.2）使输出更确定和聚焦
 // - 较高的值（如 0.8）使输出更随机和创造性
-func (b *ChatCompletionBuilder) SetTemperature(temperature float64) *ChatCompletionBuilder {
+func (b *ChatCompletionBuilder) SetTemperature(temperature float32) *ChatCompletionBuilder {
 	b.req.Temperature = temperature
 	return b
 }
@@ -86,7 +86,7 @@ func (b *ChatCompletionBuilder) SetMaxTokens(maxTokens int) *ChatCompletionBuild
 //
 // 控制生成文本的多样性，范围 [0, 1]
 // 建议只修改 temperature 或 top_p 其中之一
-func (b *ChatCompletionBuilder) SetTopP(topP float64) *ChatCompletionBuilder {
+func (b *ChatCompletionBuilder) SetTopP(topP float32) *ChatCompletionBuilder {
 	b.req.TopP = topP
 	return b
 }
@@ -102,7 +102,7 @@ func (b *ChatCompletionBuilder) SetTopK(topK int) *ChatCompletionBuilder {
 // SetRepetitionPenalty 设置重复惩罚
 //
 // 减少重复内容的生成，范围 [1, 2]
-func (b *ChatCompletionBuilder) SetRepetitionPenalty(penalty float64) *ChatCompletionBuilder {
+func (b *ChatCompletionBuilder) SetRepetitionPenalty(penalty float32) *ChatCompletionBuilder {
 	b.req.RepetitionPenalty = penalty
 	return b
 }
